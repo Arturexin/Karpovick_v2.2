@@ -1,0 +1,112 @@
+{% extends "index.html" %}
+
+{% block content %}
+<div class="clientes-form baja_opacidad">
+    <div class="contenedor_compras">
+        <div style="padding: 20px 0;" class="contenedor_compras_dos">
+            <form id="formClientes">
+                <div class="into_form">
+                    <h2>Ingresar Cliente</h2>
+                    <label class="label-general">Clase
+                        <select class="input-general fondo" id="clase_cli">
+                            <option value="0">Cliente</option>
+                            <option value="1">Proveedor</option>
+                        </select>
+                    </label>
+                    <div class="contenedor-label-input-compras">
+                        <input id="txtId" type="hidden" placeholder="ID" />
+                        <label class="label-general"><span>Cliente/Proveedor*</span><input class="input-general fondo" type="text" id="nombre" name="nombre" placeholder="Nombre"/></label>
+                        <label class="label-general">DNI/RUC<input class="input-general fondo" type="text" id="dni" name="dni" placeholder="DNI" /></label>
+                        <label class="label-general">Email<input class="input-general fondo" type="text" id="email" name="email" placeholder="Email" /></label>
+                        <label class="label-general"><span>Teléfono*</span><input class="input-general fondo" type="text" id="telefono" name="telefono" placeholder="Telefono" /></label>
+                        <label class="label-general"><span>Dirección*</span><input class="input-general fondo" type="text" id="direccion" name="direccion" placeholder="Dirección" /></label>
+                        
+                    </div>
+                    <div>
+                        <a href="#" id="registrar-cliente" class="myButtonAgregar">Registrar Cliente</a>
+                        <button type="reset" class="myButtonEliminar">Limpiar</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div style="padding: 20px 0;">
+            <div class="titulo_graficos"><p>Monto Total de Clientes y Proveedores</p></div>  
+            <div class="etiquetas_graficos_colores">
+                <div>
+                    <div class="color_item_grafico_compra"></div>
+                    <span class="descripcion_item_grafico">Clientes</span>
+                </div>
+                <div>
+                    <div class="color_item_grafico_recompra"></div>
+                    <span class="descripcion_item_grafico">Proveedores</span>
+                </div>
+            </div>
+            <div class="grafico_compras">
+                <grafico-eje_y e_0="eje_y_numeracion"></grafico-eje_y>
+                <barra-grafico_vertical l_0="f_l_g" c_1="" c_2="cg_1_c" c_3="" c_4="cg_2_c" c_5="" s_1="" s_2="sg_1_c" s_3="" s_4="sg_2_c" s_5=""></barra-grafico_vertical>
+                <barra-grafico_vertical l_0="f_l_g" c_1="" c_2="cg_1_c" c_3="" c_4="cg_2_c" c_5="" s_1="" s_2="sg_1_c" s_3="" s_4="sg_2_c" s_5=""></barra-grafico_vertical>
+                <barra-grafico_vertical l_0="f_l_g" c_1="" c_2="cg_1_c" c_3="" c_4="cg_2_c" c_5="" s_1="" s_2="sg_1_c" s_3="" s_4="sg_2_c" s_5=""></barra-grafico_vertical>
+                <barra-grafico_vertical l_0="f_l_g" c_1="" c_2="cg_1_c" c_3="" c_4="cg_2_c" c_5="" s_1="" s_2="sg_1_c" s_3="" s_4="sg_2_c" s_5=""></barra-grafico_vertical>
+                <barra-grafico_vertical l_0="f_l_g" c_1="" c_2="cg_1_c" c_3="" c_4="cg_2_c" c_5="" s_1="" s_2="sg_1_c" s_3="" s_4="sg_2_c" s_5=""></barra-grafico_vertical>
+                <barra-grafico_vertical l_0="f_l_g" c_1="" c_2="cg_1_c" c_3="" c_4="cg_2_c" c_5="" s_1="" s_2="sg_1_c" s_3="" s_4="sg_2_c" s_5=""></barra-grafico_vertical>
+                <barra-grafico_vertical l_0="f_l_g" c_1="" c_2="cg_1_c" c_3="" c_4="cg_2_c" c_5="" s_1="" s_2="sg_1_c" s_3="" s_4="sg_2_c" s_5=""></barra-grafico_vertical>
+                <barra-grafico_vertical l_0="f_l_g" c_1="" c_2="cg_1_c" c_3="" c_4="cg_2_c" c_5="" s_1="" s_2="sg_1_c" s_3="" s_4="sg_2_c" s_5=""></barra-grafico_vertical>
+                <barra-grafico_vertical l_0="f_l_g" c_1="" c_2="cg_1_c" c_3="" c_4="cg_2_c" c_5="" s_1="" s_2="sg_1_c" s_3="" s_4="sg_2_c" s_5=""></barra-grafico_vertical>
+                <barra-grafico_vertical l_0="f_l_g" c_1="" c_2="cg_1_c" c_3="" c_4="cg_2_c" c_5="" s_1="" s_2="sg_1_c" s_3="" s_4="sg_2_c" s_5=""></barra-grafico_vertical>
+                <barra-grafico_vertical l_0="f_l_g" c_1="" c_2="cg_1_c" c_3="" c_4="cg_2_c" c_5="" s_1="" s_2="sg_1_c" s_3="" s_4="sg_2_c" s_5=""></barra-grafico_vertical>
+                <barra-grafico_vertical l_0="f_l_g" c_1="" c_2="cg_1_c" c_3="" c_4="cg_2_c" c_5="" s_1="" s_2="sg_1_c" s_3="" s_4="sg_2_c" s_5=""></barra-grafico_vertical>
+            </div>
+        </div>
+    </div>
+    <div class="contenedor_tabla">
+        <table id="tabla-clientes" class="tabla-proforma">
+            <thead>
+                <tr>
+                    <th scope="row" colspan="9">
+                        <select id="filtro-tabla-clientes-clase" class="input-select-ventas">
+                            <option value="0">Clientes</option>
+                            <option value="1">Proveedores</option>
+                        </select>
+                    </th>
+                </tr>
+                <tr>
+                    <th scope="row" colspan="15">
+                        <div>
+                            <button id="buscarFiltrosClientes">Buscar</button>
+                            <button id="restablecerClientes">Restablecer</button>
+                        </div>
+                        <div>Fecha Inicio
+                            <input id="filtro-tabla-clientes-fecha-inicio" type="date" class="input-filtro" placeholder="Fecha Inicio">
+                            Fecha Fin
+                            <input id="filtro-tabla-clientes-fecha-fin" type="date" class="input-filtro" placeholder="Fecha Fin">
+                        </div>
+                    </th>
+                </tr>
+                <tr>
+                    <th style="width: 180px;">Nombre<input id="filtro-tabla-clientes-nombre" type="text" class="input-filtro" placeholder="Nombres"></th>
+                    <th style="width: 80px;">DNI<input id="filtro-tabla-clientes-dni" type="text" class="input-filtro" placeholder="DNI"></th>
+                    <th style="width: 160px;">Email<input id="filtro-tabla-clientes-email" type="text" class="input-filtro" placeholder="Email"></th>
+                    <th style="width: 100px;">Teléfono<input id="filtro-tabla-clientes-telefono" type="text" class="input-filtro" placeholder="Teléfono"></th>
+                    <th style="width: 200px;">Dirección</th>
+                    <th style="width: 100px;">Usuario<input id="filtro-tabla-clientes-usuario" type="text" class="input-filtro" placeholder="Usuario"></th>
+                    <th style="width: 100px;text-align: center;">Fecha</th>
+                    <th style="width: 100px;text-align: center;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th scope="row" colspan="16">
+                        <button id="retrocederClientes"><<  </button>
+                        <select id="numeracionTablaClientes" style="width: 50px; text-align: center;">
+                        </select>
+                        <button id="avanzarClientes">  >></button>
+                    </th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+<script src="../static/clientes.js"></script>
+{% endblock %}

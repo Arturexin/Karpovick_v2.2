@@ -1,0 +1,137 @@
+{% extends "index.html" %}
+
+{% block content %}
+<div class="transferencias-form baja_opacidad">
+    <div class="contenedor_compras">
+        <div class="contenedor_formulario_tr">
+            <h2>Transferencias</h2>
+            <select name="sucursal-destino-transferencias" id="sucursal-destino-transferencias" class="input-select-ventas">
+            </select>
+            <div>
+                <input id="buscador-productos-transferencias" type="text" class="input-compras fondo-importante" placeholder="Buscar Código"> 
+            </div>
+            <form id="formulario-transferencias" class="">
+                <div>
+                    <input class="input-compras fondo" type="hidden" id="id-transferencias" name="id-transferencias" disabled/>
+                    <label class="label-general">Sucursal<input name="sucursal-transferencias" id="sucursal-transferencias" class="input-general fondo" disabled></label>
+                    <label class="label-general">Categoría
+                        <select name="categoria-transferencias" id="categoria-transferencias" class="input-general fondo" disabled>
+                        </select>
+                    </label>
+                    <label class="label-general">Código<input class="input-general fondo" type="text" id="codigo-transferencias" name="codigo-transferencias" disabled/></label>
+                    <label class="label-general">Descripción<input class="input-general fondo" type="text" id="descripcion-transferencias" name="descripcion-transferencias" disabled/></label>
+                    
+                </div>
+                <div class="">
+                    <button id="agregarATablaPreTransferencias" class="myButtonAgregar">Agregar a Proforma</button>
+                    <input type="reset" class="myButtonEliminar">
+                </div> 
+            </form>
+        </div>
+        <div class="">
+            <div class="titulo_graficos"><p>Entradas por Transferencias del Mes</p></div>  
+            <div class="etiquetas_graficos_colores">
+                <div>
+                    <div class="color_item_grafico_transferencia"></div>
+                    <span class="descripcion_item_grafico"></span>
+                </div>
+                <div>
+                    <div class="color_item_grafico_transferencia"></div>
+                    <span class="descripcion_item_grafico"></span>
+                </div>
+                <div>
+                    <div class="color_item_grafico_transferencia"></div>
+                    <span class="descripcion_item_grafico"></span>
+                </div>
+                <div>
+                    <div class="color_item_grafico_transferencia"></div>
+                    <span class="descripcion_item_grafico"></span>
+                </div>
+                <div>
+                    <div class="color_item_grafico_transferencia"></div>
+                    <span class="descripcion_item_grafico"></span>
+                </div>
+            </div>
+            <div class="grafico_compras">
+                <grafico-eje_y e_0="eje_y_numeracion"></grafico-eje_y>
+                <barra-grafico_vertical l_0="f_l_g" c_1="cg_1_t" c_2="cg_2_t" c_3="cg_3_t" c_4="cg_4_t" c_5="" s_1="sg_1_t" s_2="sg_2_t" s_3="sg_3_t" s_4="sg_4_t" s_5=""></barra-grafico_vertical>
+                <barra-grafico_vertical l_0="f_l_g" c_1="cg_1_t" c_2="cg_2_t" c_3="cg_3_t" c_4="cg_4_t" c_5="" s_1="sg_1_t" s_2="sg_2_t" s_3="sg_3_t" s_4="sg_4_t" s_5=""></barra-grafico_vertical>
+                <barra-grafico_vertical l_0="f_l_g" c_1="cg_1_t" c_2="cg_2_t" c_3="cg_3_t" c_4="cg_4_t" c_5="" s_1="sg_1_t" s_2="sg_2_t" s_3="sg_3_t" s_4="sg_4_t" s_5=""></barra-grafico_vertical>
+                <barra-grafico_vertical l_0="f_l_g" c_1="cg_1_t" c_2="cg_2_t" c_3="cg_3_t" c_4="cg_4_t" c_5="" s_1="sg_1_t" s_2="sg_2_t" s_3="sg_3_t" s_4="sg_4_t" s_5=""></barra-grafico_vertical>
+                <barra-grafico_vertical l_0="f_l_g" c_1="cg_1_t" c_2="cg_2_t" c_3="cg_3_t" c_4="cg_4_t" c_5="" s_1="sg_1_t" s_2="sg_2_t" s_3="sg_3_t" s_4="sg_4_t" s_5=""></barra-grafico_vertical>
+                <barra-grafico_vertical l_0="f_l_g" c_1="cg_1_t" c_2="cg_2_t" c_3="cg_3_t" c_4="cg_4_t" c_5="" s_1="sg_1_t" s_2="sg_2_t" s_3="sg_3_t" s_4="sg_4_t" s_5=""></barra-grafico_vertical>
+                <barra-grafico_vertical l_0="f_l_g" c_1="cg_1_t" c_2="cg_2_t" c_3="cg_3_t" c_4="cg_4_t" c_5="" s_1="sg_1_t" s_2="sg_2_t" s_3="sg_3_t" s_4="sg_4_t" s_5=""></barra-grafico_vertical>
+                <barra-grafico_vertical l_0="f_l_g" c_1="cg_1_t" c_2="cg_2_t" c_3="cg_3_t" c_4="cg_4_t" c_5="" s_1="sg_1_t" s_2="sg_2_t" s_3="sg_3_t" s_4="sg_4_t" s_5=""></barra-grafico_vertical>
+                <barra-grafico_vertical l_0="f_l_g" c_1="cg_1_t" c_2="cg_2_t" c_3="cg_3_t" c_4="cg_4_t" c_5="" s_1="sg_1_t" s_2="sg_2_t" s_3="sg_3_t" s_4="sg_4_t" s_5=""></barra-grafico_vertical>
+                <barra-grafico_vertical l_0="f_l_g" c_1="cg_1_t" c_2="cg_2_t" c_3="cg_3_t" c_4="cg_4_t" c_5="" s_1="sg_1_t" s_2="sg_2_t" s_3="sg_3_t" s_4="sg_4_t" s_5=""></barra-grafico_vertical>
+                <barra-grafico_vertical l_0="f_l_g" c_1="cg_1_t" c_2="cg_2_t" c_3="cg_3_t" c_4="cg_4_t" c_5="" s_1="sg_1_t" s_2="sg_2_t" s_3="sg_3_t" s_4="sg_4_t" s_5=""></barra-grafico_vertical>
+                <barra-grafico_vertical l_0="f_l_g" c_1="cg_1_t" c_2="cg_2_t" c_3="cg_3_t" c_4="cg_4_t" c_5="" s_1="sg_1_t" s_2="sg_2_t" s_3="sg_3_t" s_4="sg_4_t" s_5=""></barra-grafico_vertical>
+            </div>
+        </div>
+    </div>
+    
+    <div class="contenedor-pre-transferencia">
+        <table id="tabla-pre-transferencias" class="tabla-proforma contenido-tabla">
+            <thead>
+                <tr>
+                    <th scope="row" colspan="11"><h2>Proforma</h2></th>
+                </tr>
+                <tr>
+                    <th style="width: 120px;">Sucursal / Origen</th>
+                    <th style="width: 70px;">Código Origen</th>
+                    <th style="width: 200px;">Descripción</th>
+                    <th style="width: 70px;">Existencias en Origen</th>
+                    <th style="width: 70px;">Unidades a transferir</th>
+                    <th style="width: 120px;">Sucursal / Destino</th>
+                    <th style="width: 70px;">Existencias en Destino</th>
+                    <th style="width: 70px;">Nuevas Existencias en Destino</th>
+                    <th style="width: 40px;">
+                        <span style="font-size:18px;" class="material-symbols-outlined">delete</span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+            <tfoot>
+                <th scope="row" colspan="11">
+                    <button id="procesar-pre-transferencias" class="myButtonAgregar">Enviar a Tabla Transferencias</button>
+                    <button id="remover-tabla-transferencias-uno" class="eliminarTablaFila">Cancelar</button>
+                </th>
+            </tfoot>
+        </table>
+    </div>
+    <div class="contenedor_tabla">
+        <table id="tabla-proforma-transferencias" class="tabla-proforma">
+            <thead>
+                <tr>
+                    <th scope="row" colspan="11"><h2>Lista de Transferencias</h2></th>
+                </tr>
+                <tr>
+                    <th>Sucursal / Origen</th>
+                    <th>Código Origen</th>
+                    <th>Descripción	</th>
+                    <th>Unidades a transferir</th>
+                    <th>Sucursal / Destino</th>
+                    <th style="width: 100%;" id="remover-tabla-transferencias-dos" class="eliminarTablaFila">
+                        <span style="font-size:18px;" class="material-symbols-outlined">delete</span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th scope="row" colspan="3">Total Unidades Transferidas</th>
+                    <th id="total-cantidad-tabla-transferencias"></th>
+                </tr>
+                <tr>
+                    <th scope="row" colspan="8">
+                        <button id="procesar-transferencias-plus" class="myButtonProcesar">Procesar</button>
+                    </th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+<script src="../static/transferencias.js"></script>
+{% endblock %}

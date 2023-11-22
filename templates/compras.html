@@ -1,0 +1,124 @@
+{% extends "index.html" %}
+
+{% block content %}
+<div class="compras-form baja_opacidad">
+    <div class="contenedor_compras_uno botones-compras">
+        <button id="nuevo-producto" class="myButtonAgregarDos">Comprar Nuevo Producto</button>
+        <button id="recompra-producto-plus" class="myButtonAgregarDos">Recomprar Producto</button>
+    </div>
+    <div class="contenedor_compras">
+        <div class="contenedor_compras_dos">
+            <div id="grafico_circular_compras_recompras">
+                <div style="font-size: 25px; text-align: center;"><p>Acumulado Anual</p></div>  
+                <div class="contenedor_circulo_sucursal">
+                    <div id="circulo_porcentaje_compra_recompra">
+                        <div class="cirulo_interior_porcentaje_c_r">
+                            <span class="nombre_circulo_porcentaje"></span>
+                            <span class="valor_circulo_porcentaje_compras"></span>
+                            <span class="valor_circulo_porcentaje_recompras"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <form id="formulario-compras-uno">
+            </form>
+        </div>
+        <div>
+            <div class="titulo_graficos"><p>Monto Total de Compra y Recompra</p></div>  
+            <div class="etiquetas_graficos_colores">
+                <div>
+                    <div class="color_item_grafico_compra"></div>
+                    <span class="descripcion_item_grafico">Compras</span>
+                </div>
+                <div>
+                    <div class="color_item_grafico_recompra"></div>
+                    <span class="descripcion_item_grafico">Recompras</span>
+                </div>
+            </div>
+            <div class="grafico_compras">
+                <grafico-eje_y e_0="eje_y_numeracion"></grafico-eje_y>
+                <barra-grafico_vertical l_0="f_l_g" c_1="" c_2="cg_1_c" c_3="" c_4="cg_2_c" c_5="" s_1="" s_2="sg_1_c" s_3="" s_4="sg_2_c" s_5=""></barra-grafico_vertical>
+                <barra-grafico_vertical l_0="f_l_g" c_1="" c_2="cg_1_c" c_3="" c_4="cg_2_c" c_5="" s_1="" s_2="sg_1_c" s_3="" s_4="sg_2_c" s_5=""></barra-grafico_vertical>
+                <barra-grafico_vertical l_0="f_l_g" c_1="" c_2="cg_1_c" c_3="" c_4="cg_2_c" c_5="" s_1="" s_2="sg_1_c" s_3="" s_4="sg_2_c" s_5=""></barra-grafico_vertical>
+                <barra-grafico_vertical l_0="f_l_g" c_1="" c_2="cg_1_c" c_3="" c_4="cg_2_c" c_5="" s_1="" s_2="sg_1_c" s_3="" s_4="sg_2_c" s_5=""></barra-grafico_vertical>
+                <barra-grafico_vertical l_0="f_l_g" c_1="" c_2="cg_1_c" c_3="" c_4="cg_2_c" c_5="" s_1="" s_2="sg_1_c" s_3="" s_4="sg_2_c" s_5=""></barra-grafico_vertical>
+                <barra-grafico_vertical l_0="f_l_g" c_1="" c_2="cg_1_c" c_3="" c_4="cg_2_c" c_5="" s_1="" s_2="sg_1_c" s_3="" s_4="sg_2_c" s_5=""></barra-grafico_vertical>
+                <barra-grafico_vertical l_0="f_l_g" c_1="" c_2="cg_1_c" c_3="" c_4="cg_2_c" c_5="" s_1="" s_2="sg_1_c" s_3="" s_4="sg_2_c" s_5=""></barra-grafico_vertical>
+                <barra-grafico_vertical l_0="f_l_g" c_1="" c_2="cg_1_c" c_3="" c_4="cg_2_c" c_5="" s_1="" s_2="sg_1_c" s_3="" s_4="sg_2_c" s_5=""></barra-grafico_vertical>
+                <barra-grafico_vertical l_0="f_l_g" c_1="" c_2="cg_1_c" c_3="" c_4="cg_2_c" c_5="" s_1="" s_2="sg_1_c" s_3="" s_4="sg_2_c" s_5=""></barra-grafico_vertical>
+                <barra-grafico_vertical l_0="f_l_g" c_1="" c_2="cg_1_c" c_3="" c_4="cg_2_c" c_5="" s_1="" s_2="sg_1_c" s_3="" s_4="sg_2_c" s_5=""></barra-grafico_vertical>
+                <barra-grafico_vertical l_0="f_l_g" c_1="" c_2="cg_1_c" c_3="" c_4="cg_2_c" c_5="" s_1="" s_2="sg_1_c" s_3="" s_4="sg_2_c" s_5=""></barra-grafico_vertical>
+                <barra-grafico_vertical l_0="f_l_g" c_1="" c_2="cg_1_c" c_3="" c_4="cg_2_c" c_5="" s_1="" s_2="sg_1_c" s_3="" s_4="sg_2_c" s_5=""></barra-grafico_vertical>
+            </div>
+        </div>
+    </div>
+    <div class="contenedor-pre-recompra">
+        <table id="tabla_modal" class="tabla-proforma contenido-tabla">
+            <thead>
+                <tr>
+                    <th scope="row" colspan="18"><h2>Proforma</h2></th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+            <tfoot>
+                <th scope="row" colspan="18">
+                    <button id="procesar-pre-recompra" class="myButtonAgregar">Enviar Recompra</button>
+                    <button id="procesar-pre-compra" class="myButtonAgregar">Enviar Nueva Compra</button>
+                    <button id="remover-tabla-compras-uno" class="eliminarTablaFila">Cancelar</button>
+                </td>
+            </tfoot>
+        </table>
+    </div>
+    <div class="contenedor_tabla">
+        <table id="tabla_principal" class="tabla-proforma">
+            <thead>
+                <tr>
+                    <th scope="row" colspan="12"><h2>Lista de Compras</h2></th>
+                </tr>
+                <tr>
+                    <!-- <th>ID</th> -->
+                    <th>Sucursal</th>
+                    <th>Categoria</th>
+                    <th>Código</th>
+                    <th>Descripción</th>
+                    <th>Talla</th>
+                    <th>Cantidad</th>
+                    <!--<th>Cantidad a Devolver</th>-->
+                    <th>Costo Unitario</th>
+                    <th>Costo Total</th>
+                    <th>Precio de Venta</th>
+                    <th>Lote</th>
+                    <th>Proveedor</th>
+                    <!--<th>Tipo de Operación</th>-->
+                    <!--<th>Comprobante</th>-->
+                    <!--<th>Causa de Devolución</th>-->
+                    <!--<th>Usuario</th>-->
+                    <!--<th>Fecha</th>-->
+                    <th style="width: 100%;" id="remover-tabla-compras-dos" class="eliminarTablaFila">
+                        <span style="font-size:18px;" class="material-symbols-outlined">delete</span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th scope="row" colspan="5">Total</th>
+                    <th id="total-cantidad-tabla-compras"></th>
+                    <th>S/.</th>
+                    <th id="total-importe-tabla-compras"></th>
+                </tr>
+                <tr>
+                    <th scope="row" colspan="12">
+                        <button id="procesar-compras" class="myButtonProcesar">Procesar</button>
+                        <button id="procesar-compras-plus" class="myButtonProcesar invisible">Procesar</button>
+                    </th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+<script src="../static/compras.js"></script>
+{% endblock %}

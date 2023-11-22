@@ -1,0 +1,255 @@
+{% extends "index.html" %}
+
+{% block content %}
+<div class="configuracion-form baja_opacidad">
+    <form id="formularioConfiguracionCategorias" class="formulario-general fondo">
+        <h2>Generar Categorías</h2>
+        <hr>
+        <br>
+        <div  class="contenedor-label-input-compras-dos">
+            <div>
+                <input class="input-general fondo" id="id-configuracion" type="hidden">
+                <label class="label-general">Nombre de Categoria<input class="input-general fondo" id="categoria-configuracion" type="text"></label>
+                <label class="label-general">Unidad de Medida<input class="input-general fondo" id="unidad-configuracion" type="text"></label>
+                <label class="label-general">Cantidad de Unidades<input class="input-general fondo" id="cantidad-configuracion" type="text"></label>
+            </div>
+            <div class="cuadro_int_config">
+                <label class="label-general"><input class="input-tablas-dos-largo fondo num_config invisible" id="uno-configuracion" type="text"></label>
+                <label class="label-general"><input class="input-tablas-dos-largo fondo num_config invisible" id="dos-configuracion" type="text"></label>
+                <label class="label-general"><input class="input-tablas-dos-largo fondo num_config invisible" id="tres-configuracion" type="text"></label>
+                <label class="label-general"><input class="input-tablas-dos-largo fondo num_config invisible" id="cuatro-configuracion" type="text"></label>
+                <label class="label-general"><input class="input-tablas-dos-largo fondo num_config invisible" id="cinco-configuracion" type="text"></label>
+                <label class="label-general"><input class="input-tablas-dos-largo fondo num_config invisible" id="seis-configuracion" type="text"></label>
+                <label class="label-general"><input class="input-tablas-dos-largo fondo num_config invisible" id="siete-configuracion" type="text"></label>
+                <label class="label-general"><input class="input-tablas-dos-largo fondo num_config invisible" id="ocho-configuracion" type="text"></label>
+                <label class="label-general"><input class="input-tablas-dos-largo fondo num_config invisible" id="nueve-configuracion" type="text"></label>
+                <label class="label-general"><input class="input-tablas-dos-largo fondo num_config invisible" id="diez-configuracion" type="text"></label>
+                <label class="label-general"><input class="input-tablas-dos-largo fondo num_config invisible" id="once-configuracion" type="text"></label>
+                <label class="label-general"><input class="input-tablas-dos-largo fondo num_config invisible" id="doce-configuracion" type="text"></label>
+            </div>
+        </div>
+        <div class="boton-cli">
+            <button id="registrar-categoria" class="myButtonAgregar">Registrar</button>
+            <button id="reiniciar_config" class="myButtonEliminar">Restablecer</button>
+        </div>
+        
+    </form>
+    <br>
+    <div id="form-categorias">
+        <table id="tabla-categorias" class="tabla-proforma">
+            <thead>
+                <tr>
+                    <th scope="row" colspan="16"><h2>Tabla Categorías</h2></th>
+                </tr>
+                <tr>
+                    <!-- <th>ID</th> -->
+                    <th>Categoria</th>
+                    <th>Unidad de Medida</th>
+                    <th>Cantidad</th>
+                    <th>N°</th>
+                    <th>N°</th>
+                    <th>N°</th>
+                    <th>N°</th>
+                    <th>N°</th>
+                    <th>N°</th>
+                    <th>N°</th>
+                    <th>N°</th>
+                    <th>N°</th>
+                    <th>N°</th>
+                    <th>N°</th>
+                    <th>N°</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+    <br>
+    <hr>
+    <br>
+    <div>
+        <form id="formularioConfiguracionNumeracion" class="formulario-general fondo">
+            <div>
+                <h2>Numeración Comprobantes</h2>
+            </div>
+            <div class="contenedor-label-input-compras">
+                <div>
+                    <input class="input-general fondo" id="id-numeracion" type="hidden">
+                    <label class="label-general">Compras<input class="input-general fondo" id="compras-numeracion" type="number"></label>
+                    <label class="label-general">Recompras<input class="input-general fondo" id="recompras-numeracion" type="number"></label>
+                    <label class="label-general">Transferencias<input class="input-general fondo" id="transferencias-numeracion" type="number"></label>
+                    <label class="label-general">Ventas<input class="input-general fondo" id="ventas-numeracion" type="number"></label>
+                    <label class="label-general">Nota de Venta<input class="input-general fondo" id="nota-venta-numeracion" type="number"></label>
+                    <label class="label-general">Boleta de Venta<input class="input-general fondo" id="boleta-venta-numeracion" type="number"></label>
+                    <label class="label-general">Factura<input class="input-general fondo" id="factura-numeracion" type="number"></label>
+                </div>
+            </div>
+            <div class="boton-cli">
+                <button id="registrar-numeracion" class="myButtonAgregar">Registrar</button>
+                <input type="reset" class="myButtonEliminar">
+            </div>
+        </form>
+        <br>
+        <table id="tabla-numeracion"  class="tabla-proforma">
+            <thead>
+                <tr>
+                    <th scope="row" colspan="8"><h2>Lista de Numeración</h2></th>
+                </tr>
+                <tr>
+                    <!-- <th>ID</th> -->
+                    <th>Compras</th>
+                    <th>Recompras</th>
+                    <th>Transferencias</th>
+                    <th>Ventas</th>
+                    <th>Nota de Venta</th>
+                    <th>Boleta de Venta</th>
+                    <th>Factura</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+    <br>
+    <hr>
+    <br>
+    <div>
+        <form id="formularioConfiguracionNumeracionDatos" class="formulario-general fondo">
+            <div>
+                <h2>Datos de Negocio</h2>
+            </div>
+            <div class="contenedor-label-input-compras">
+                <div>
+                    <input class="input-general fondo" id="id-datos" type="hidden">
+                    <label class="label-general">Razón Social<input class="input-general fondo" id="razon-datos" type="text"></label>
+                    <label class="label-general">RUC/RUS<input class="input-general fondo" id="ruc-datos" type="text"></label>
+                    <label class="label-general">Dirección<input class="input-general fondo" id="direccion-datos" type="text"></label>
+                    <label class="label-general">Moneda<input class="input-general fondo" id="moneda-datos" type="text"></label>
+                    <label class="label-general">Web/Email<input class="input-general fondo" id="web-datos" type="text"></label>
+                </div>
+            </div>
+            <div class="boton-cli">
+                <button id="registrar-datos" class="myButtonAgregar">Registrar</button>
+                <input type="reset" class="myButtonEliminar">
+            </div>
+        </form>
+        <br>
+        <table id="tabla-numeracion-datos"  class="tabla-proforma">
+            <thead>
+                <tr>
+                    <th scope="row" colspan="8"><h2>Lista de Datos de Negocio</h2></th>
+                </tr>
+                <tr>
+                    <!-- <th>ID</th> -->
+                    <th>Razón Social</th>
+                    <th>RUC/RUS</th>
+                    <th>Dirección</th>
+                    <th>Moneda</th>
+                    <th>Web/Email</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+    <br>
+    <hr>
+    <br>
+    <div class="contenedor-usuarios-nuevos">
+        <form id="formulario-create-usuarios" class="formulario-general fondo" action="/registro" method="POST">
+            <h2>Crear Nuevo Usuario</h2>
+            <div class="contenedor-label-input-compras">
+                <div>
+                    <input type="hidden" id="id_usuarios">
+                    <label class="label-general">Nombres
+                        <input  class="input-general fondo" id="nombres-create-usuario" name="nombres-create-usuario" type="text">
+                    </label>
+                    <label class="label-general">Apellidos
+                        <input  class="input-general fondo" id="apellidos-create-usuario" name="apellidos-create-usuario" type="text">
+                    </label>
+                    <label class="label-general">DNI
+                        <input  class="input-general fondo" id="dni-create-usuario" name="dni-create-usuario" type="text">
+                    </label>
+                    <label class="label-general">Email
+                        <input  class="input-general fondo" id="email-create-usuario" name="email-create-usuario" type="text">
+                    </label>
+                    <label class="label-general">Teléfono
+                        <input  class="input-general fondo" id="telefono-create-usuario" name="telefono-create-usuario" type="text">
+                    </label>
+                    <label class="label-general">Cargo
+                        <select class="input-general fondo" name="cargo-create-usuario" id="cargo-create-usuario">
+                            <option value=201>Administrador</option>
+                            <option value=202>Supervisor</option>
+                            <option value=0>Cajero Almacén Central</option>
+                            <option value=1>Cajero Sucursal Uno</option>
+                            <option value=2>Cajero Sucursal Dos</option>
+                            <option value=3>Cajero Sucursal Tres</option>
+                        </select>
+                    </label>
+                    <label class="label-general">Password
+                        <input  class="input-general fondo" id="password-create-usuario" name="password-create-usuario" type="text">
+                    </label>
+                    <label class="label-general">Confirmar Password
+                        <input  class="input-general fondo" id="password-confirmar-create-usuario" name="password-confirmar-create-usuario" type="text">
+                    </label>
+                </div>
+            </div>
+            <div class="boton-cli">
+                <button type="submit" id="crear-nueva-cuenta-usuario" class="myButtonAgregar">Registrar</button>
+                <input id="reset_usuarios" type="reset" class="myButtonEliminar">
+            </div>
+        </form>
+        <br>
+
+        <table id="tabla-usuarios-local"  class="tabla-proforma">
+            <thead>
+                <tr>
+                    <th scope="row" colspan="8"><h2>Lista Usuarios</h2></th>
+                </tr>
+                <tr>
+                    <!-- <th>ID</th> -->
+                    <th>Nombres</th>
+                    <th>Apellidos</th>
+                    <th>DNI</th>
+                    <th>Email</th>
+                    <th>Teléfono</th>
+                    <th>Cargo</th>
+                    <th>Fecha</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+    <br>
+    <hr>
+    <br>
+    <div class="contenedor_form_sucursal">
+        <div class="contenedor_boton_sucursal">
+            <p style="margin: 0 20px;">Solicitar nueva sucursal</p>
+            <button id="agregar_sucursal" class="material-symbols-outlined aumento_sucursal" style="font-size: 50px;">add</button>
+        </div>
+    </div>
+    <br>
+    <table id="tabla_sucursales"  class="tabla-proforma">
+        <thead>
+            <tr>
+                <th scope="row" colspan="8"><h2>Lista de Sucursales</h2></th>
+            </tr>
+            <tr>
+                <th>Sucursal</th>
+                <th>Estado</th>
+                <th>Fecha</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>
+<script src="../static/configuracion.js"></script>
+{% endblock %}

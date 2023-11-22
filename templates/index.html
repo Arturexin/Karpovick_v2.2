@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../static/index.css">
+    <link rel="stylesheet" href="../static/button.css">
+    <link rel="stylesheet" href="../static/ventas.css">
+    <link rel="stylesheet" href="../static/inventario.css">
+    <link rel="stylesheet" href="../static/administracion.css">
+    <link rel="stylesheet" href="../static/movimientos.css">
+    <link rel="stylesheet" href="../static/mantenimiento.css">
+    <link rel="stylesheet" href="../static/general.css">
+    <link rel="stylesheet" href="../static/filtros.css">
+    <link rel="stylesheet" href="../static/home.css">
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fasthand&family=Montserrat:wght@500&family=Nunito&family=Roboto&family=Ubuntu&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
+    <link rel="icon" href="../static/Karpovick_logo_uno.png" type="image/x-icon">
+    <title>Karpovick</title>
+    
+</head>
+<body class="body_web">
+    
+    <div id="sidebar" class="barra-lateral">
+        <ul class="menu-vertical">
+            <li class="lista-principal">
+                <div class="lista-boton boton-home" id="button-home">
+                    <span class="material-symbols-outlined">home</span>
+                    <a class="home">Casa</a>
+                </div>
+                
+            </li>
+            <li class="lista-principal">
+                <div class="lista-boton boton-ventas" id="button-ventas">
+                    <span class="material-symbols-outlined">shopping_cart</span>
+                    <a class="ventas">Ventas</a>
+                </div>
+            </li>
+            <li class="lista-principal">
+                <div class="lista-boton lista-boton-click" id="btnMovimientos">
+                    <span class="material-symbols-outlined">move_group</span>
+                    <a class="button">Movimientos</a>
+                    <span class="material-symbols-outlined flecha">chevron_right</span>
+                </div>
+                
+                <ul class="sub-menu">
+                    <li>
+                        <a id="button-compras" class="sub-lista" href="{{ url_for('compras')}}"></a>
+                    </li>
+                    <li>
+                        <a id="button-transferencias" class="sub-lista" href="{{ url_for('transferencias')}}">Transferencias</a>
+                    </li>
+                    <li>
+                        <a id="button-kardex" class="sub-lista" href="{{ url_for('kardex')}}">Kardex</a>
+                    </li>
+                    <li>
+                        <a id="button-detalle-ventas" class="sub-lista" href="{{ url_for('detalle_ventas')}}">Detalle de Ventas</a>
+                    </li>
+
+                </ul>
+            </li>
+            <li class="lista-principal">
+                <div class="lista-boton lista-boton-click" id="btnMantenimiento">
+                    <span class="material-symbols-outlined">tune</span>
+                    <a class="button">Mantenimiento</a>
+                    <span class="material-symbols-outlined flecha">chevron_right</span>
+                </div>
+                
+                <ul class="sub-menu">
+                    <li>
+                        <a id="button-modificacion" class="sub-lista" href="{{ url_for('modificacion')}}">Modificación</a>
+                    </li>
+                    <li>
+                        <a id="button-devolucion-compras" class="sub-lista" href="{{ url_for('devolucion_compras')}}">Devolución por Compras</a>
+                    </li>
+                    <li>
+                        <a id="button-devolucion-salidas" class="sub-lista" href="{{ url_for('devolucion_salidas')}}">Devolución por Salidas</a>
+                    </li>
+                    <li>
+                        <a id="button-perdidas" class="sub-lista" href="{{ url_for('perdidas')}}">Pérdidas</a>
+                    </li>
+                </ul>
+            </li>
+            <li class="lista-principal">
+                <div class="lista-boton lista-boton-click" id="btnInventario">
+                    <span class="material-symbols-outlined">storage</span>
+                    <a class="button">Inventario</a>
+                    <span class="material-symbols-outlined flecha">chevron_right</span>
+                </div>
+                
+                <ul class="sub-menu">
+                    <li>
+                        <a id="button-productos" class="sub-lista" href="{{ url_for('productos')}}">Productos</a>
+                    </li>
+                    <li>
+                        <a id="button-entradas" class="sub-lista" href="{{ url_for('entradas')}}">Entradas</a>
+                    </li>
+                    <li>
+                        <a id="button-salidas" class="sub-lista" href="{{ url_for('salidas')}}">Salidas</a>
+                    </li>
+                </ul>
+            </li>
+            <li class="lista-principal">
+                <div class="lista-boton lista-boton-click" id="btnAdministracion">
+                    <span class="material-symbols-outlined">settings</span>
+                    <a class="button">Administración</a>
+                    <span class="material-symbols-outlined flecha">chevron_right</span>
+                </div>
+                
+                <ul class="sub-menu">
+                    <li>
+                        <a id="button-clientes" class="sub-lista" href="{{ url_for('clientes')}}">Clientes</a>
+                    </li>
+                    <li>
+                        <a id="button-configuracion" class="sub-lista" href="{{ url_for('configuracion')}}">Configuración</a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+    <main class="principal">
+        
+        {% block content %}
+        {% endblock %}
+        <div class="usuario_opciones">
+            <ul>
+                <li><p id="puesto_usuario">{{ puesto }}</p></li>
+                <li><p id="identificacion_usuario_id">{{ identificacion_usuario }}</p></li>
+                <li><p>Modo oscuro</p></li>
+                <li><p>Modo normal</p></li>
+                <li><p>Modo pink</p></li>
+                <li><a href="{{ url_for('logout')}}" id="cerrar-sesion">Salir</a></li>
+            </ul>
+        </div>
+    </main>
+
+    <div class="contenedor_cabecera_principal">
+        <div class="cabeza-web">
+            <div style="display: flex;align-items: center;">
+                <p style="margin: 0 10px;">Karpovick</p>
+                <div id="boton_despliegue" class="botonBloqueoMenu">
+                    <span class="material-symbols-outlined">menu</span>
+                </div>
+            </div>
+            <div></div>
+            <div style="display: flex; justify-content: center;">
+                <select name="sucursal-principal" id="sucursal-principal">
+                </select>
+            </div>
+            <div class="contenedor_estilo_colores_fondo">
+                <div class="color_fondo" id="color_negro"></div>
+                <div class="color_fondo" id="color_violeta"></div>
+                <div class="color_fondo" id="color_cafe"></div>
+                <div class="color_fondo" id="color_blanco"></div>
+            </div>
+            <div class="usuario_cliente">
+                <span class="material-symbols-outlined">
+                    person
+                </span>
+                <p id="usuario-cliente" class="usuario-cabecera">{{ usuario_nombre }}</p>
+            </div>
+            
+        </div>
+    </div>
+    <style>
+        .material-symbols-outlined {
+          /* color: var(--color-principal); */
+          font-variation-settings:
+          'FILL' 0,
+          'wght' 400,
+          'GRAD' 0,
+          'opsz' 24
+        }
+    </style>
+    <script src="../static/index.js"></script>
+    <script src="../static/componentes_creados.js"></script>
+</body>
+</html>

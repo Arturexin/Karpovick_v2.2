@@ -1,0 +1,108 @@
+{% extends "index.html" %}
+
+{% block content %}
+<div class="productos-form baja_opacidad">
+    <div class="contenedor_compras">
+        <div>
+            <div class="contenedor-input-radio-inventario">
+                <input id="buscador-producto" class="input-text fondo-importante buscar-producto" type="text" name="buscador-producto" placeholder="Ingresar código de producto"/></label>
+            </div>
+            <form id="formPaginaProductos">
+                <div class="contenedor-label-input-compras">
+                    <input id="id-productos" type="hidden" placeholder="ID" style="height: 30px; width: 60px" />
+                    <div class="contenedor-label-input-productos">
+                        <div>
+                            <label class="label-general">Sucursal<input name="sucursal-productos" id="sucursal-productos" class="input-general fondo" disabled></label>
+                            <label class="label-general">Código<input id="codigo-productos" class="input-general fondo" type="text" name="codigo-productos" /></label>
+                            <label class="label-general">Descripción<input id="descripcion-productos" class="input-general fondo" type="text" name="descripcion-productos" /></label>
+                            <label class="label-general">Precio<input id="precio-venta-productos" class="input-general fondo" type="text" name="precio-venta-productos" /></label>
+                            <label class="label-general">Existencias<input id="existencias-productos" type="text" name="existencias-productos" class="fondo input-general"></label>
+                            
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <div class="boton-cli">
+                <button id="agregar-tabla-codigo-barras" class="myButtonAgregar">Agregar a Cola de Impresión</button>
+            </div>
+        </div>
+        <div>
+            <div class="contenedor-codigo-barras">
+                <table id="tabla-codigo-barras" class="tabla-proforma">
+                    <thead>
+                        <tr>
+                            <th scope="row" colspan="5">Tabla de Etiquetas</th>
+                        </tr>
+                        <tr>
+                            <th>Código</th>
+                            <th>Descripción</th>
+                            <th>Precio</th>
+                            <th>Cantidad</th>
+                            <th>Cod. Barras</th>
+                            <th>X</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th scope="row" colspan="5">
+                                <button id="crear-codigo-barras" class="myButtonAgregar">Crear Código De Barras</button>
+                            </th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="acciones_rapidas" class="contenedor-pre-producto">
+    </div>
+    <div>
+        <table id="tabla-productos" class="tabla-proforma">
+            <thead>
+                <tr>
+                    <th scope="row" colspan="16"><h2>Inventario Productos</h2></th>
+                </tr>
+                <tr>
+                    <th scope="row" colspan="15">
+                        <button id="buscarFiltrosProductos">Buscar</button>
+                        <button id="restablecerProductos">Restablecer</button>
+                        <button id="bajoStockProductos">Productos con bajo stock</button>
+                    </th>
+                </tr>
+                <tr>
+                    <th>Categoría<input id="filtro-tabla-productos-categoria" type="text" class="input-filtro" placeholder="Categoría"></th>
+                    <th>Código<input id="filtro-tabla-productos-codigo" type="text" class="input-filtro" placeholder="Código"></th>
+                    <th>Descripción<input id="filtro-tabla-productos-descripcion" type="text" class="input-filtro" placeholder="Descripción"></th>
+                    <th>Talla</th>
+                    <th>Q AC</th>
+                    <th>Q S1</th>
+                    <th>Q S2</th>
+                    <th>Q S3</th>
+                    <th>Costo Unitario</th>
+                    <th>Costo Total</th>
+                    <th>Precio de Venta</th>
+                    <th>Lote</th>
+                    <th>Proveedor<input id="filtro-tabla-productos-proveedor" type="text" class="input-filtro" placeholder="Proveedor"></th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            
+            <tbody>                
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th scope="row" colspan="16">
+                        <button id="retroceder"><<  </button>  
+                        <select id="numeracionTabla" style="width: 50px; text-align: center;">
+                        </select>
+                        <button id="avanzar">  >></button>
+                    </th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+<script src="../static/productos.js"></script>
+{% endblock %}

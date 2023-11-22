@@ -1,0 +1,185 @@
+:root {
+    --fondo-principal : rgb(18, 18, 18);
+    --fondo-secundario : rgba(5, 5, 5, 1);
+    --fondo-terciario : #31383f;
+    --fondo-cuaternario : #5b6774;
+    --fondo-marca-uno : #994d40;
+    --fondo-marca-dos : #599bb3;
+    --border-principal : #994d40;
+    --color-principal : #eee;
+    --color-secundario : #eee;
+    --fondo-input : #31383f;
+    --boton-uno : #599bb3;
+    --boton-dos : #994d40;
+    --boton-tres : #77E578;
+}
+
+.fondo {
+    color: var(--color-principal); 
+    background-color: var(--fondo-input);
+}
+.fondo-importante {
+    color: var(--color-principal); 
+    /* background: rgb(105, 211, 35); */
+    border: 1px solid var(--border-principal);
+    background-color: var(--fondo-input);
+    box-shadow: 1px 1px 14px -7px var(--border-principal);
+    /* background-color: #141E30; */
+}
+caption {
+    font-size: 25px;
+    font-weight: 700;
+    margin: 10px;
+}
+.formulario-general {
+    background: var(--fondo-principal);
+    background-blend-mode: normal;
+    margin: 0px auto;
+    padding: 20px;
+    min-width: 500px;
+    width: 500px;
+    border-radius: 14px;
+}
+.formulario-general-dos {
+    background: linear-gradient(
+        146deg,
+        var(--fondo-principal) 40%,
+        var(--fondo-secundario) 40%
+    );
+    background-blend-mode: normal;
+    margin: 0px auto;
+    padding: 20px;
+    min-width: 750px;
+    width: 750px;
+    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+}
+.input-select {
+    width: 110px;
+    margin: 4px 30px;
+    border: none;
+    border-radius: 7px;
+    padding: 3px;
+    color: var(--color-principal);
+}
+
+.contenedor-tabla {
+    margin: 20px auto;
+    background: linear-gradient(
+        146deg,
+        var(--fondo-principal) 40%,
+        var(--fondo-secundario) 40%
+    );
+    background-blend-mode: normal;
+    border-radius: 14px;
+    width: 760px;
+    min-width: 760px;
+    align-items: center;
+    justify-content: center;
+}
+.tabla-proforma {
+    width: 100%;
+    margin: 0px auto;
+    background-color: var(--fondo-principal);
+    border: 3px solid var(--fondo-principal);
+    border-radius: 14px;
+    font-size: 15px;
+}
+.tabla-proforma th, .tabla-proforma td {
+    padding: 2px;
+}
+.tabla-proforma tr:nth-child(even){
+    background-color: var(--fondo-terciario);}
+    .tabla-proforma tr:hover {
+    background-color: var(--fondo-cuaternario);
+}
+.tabla-proforma th {
+	background: var(--fondo-secundario);
+    border-radius: 10px;
+	color: var(--color-secundario);
+	font-family:Arial;
+	font-size:16px;
+	padding:7px 0px;
+}
+.input-tablas{
+    width: 100px;
+    margin: 0px 5px;
+    border-radius: 5px;
+    border: none;
+    padding: 2px;
+}
+.input-tablas-texto-largo{
+    width: 190px;
+    margin: 0px 5px;
+    border-radius: 5px;
+    border: none;
+    padding: 2px;
+}
+.input-tablas-dos{
+    text-align: end;
+    width: 40px;
+    margin: 0px 5px;
+    border-radius: 5px;
+    border: none;
+    padding: 2px;
+}
+.input-tablas-dos-largo{
+    text-align: end;
+    width: 62px;
+    margin: 0px 5px;
+    border-radius: 5px;
+    border: none;
+    padding: 2px;
+}
+.boton-procesar{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 15px;
+}
+.label-general{
+    display: flex;
+    justify-content: space-between;
+    margin: 3px;
+    
+}
+.input-general{
+    width: 280px;
+    margin: 0px 10px;
+    border: none;
+    border-radius: 5px;
+    padding: 4px;
+}
+.input-general-importante{
+    width: 300px;
+    margin: 0px 10px;
+    border-radius: 5px;
+    padding: 4px;
+}
+.nuevo-contenedor {
+    width: 1100px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+.nuevo-contenedor-box {
+    background: var(--fondo-principal);
+    padding: 5px;
+    border-radius: 14px;
+}
+.nuevo-contenedor-box-dos {
+    background: var(--fondo-principal);
+    border-radius: 14px;
+}
+.nuevo-contenedor-box-tres {
+    background: var(--fondo-principal);
+    padding: 5px;
+    border-radius: 14px;
+    width: 820px;
+    min-width: 820px;
+}
+.cuadro_int_config{
+    display: flex;
+    flex-wrap: wrap;
+}

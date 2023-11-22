@@ -1,0 +1,108 @@
+{% extends "index.html" %}
+
+{% block content %}
+<div class="modificacion-form baja_opacidad">
+    <div class="contenedor_compras_uno botones-compras">
+        <button id="registra-modificacion" class="myButtonAgregarDos">Registrar Nuevo producto</button>
+        <button id="editar-modificacion" class="myButtonAgregarDos">Modificar Producto</button>
+    </div>
+    <div class="contenedor_compras">
+        <div class="contenedor_compras_dos">
+            <form id="formulario-modificacion">
+            </form>
+        </div>
+        <div>
+            <div class="titulo_graficos"><p>Traspasos Por Mes</p></div>  
+            <div class="etiquetas_graficos_colores">
+                <div>
+                    <div class="color_item_grafico_modificacion"></div>
+                    <span class="descripcion_item_grafico">Monto</span>
+                </div>
+            </div>
+            <div class="grafico_compras">
+                <grafico-eje_y e_0="eje_y_numeracion"></grafico-eje_y>
+                <barra-grafico_vertical l_0="f_l_g" c_1="" c_2="cg_2_t" c_3="" c_4="" c_5="" s_1="" s_2="sg_2_t" s_3="" s_4="" s_5=""></barra-grafico_vertical>
+                <barra-grafico_vertical l_0="f_l_g" c_1="" c_2="cg_2_t" c_3="" c_4="" c_5="" s_1="" s_2="sg_2_t" s_3="" s_4="" s_5=""></barra-grafico_vertical>
+                <barra-grafico_vertical l_0="f_l_g" c_1="" c_2="cg_2_t" c_3="" c_4="" c_5="" s_1="" s_2="sg_2_t" s_3="" s_4="" s_5=""></barra-grafico_vertical>
+                <barra-grafico_vertical l_0="f_l_g" c_1="" c_2="cg_2_t" c_3="" c_4="" c_5="" s_1="" s_2="sg_2_t" s_3="" s_4="" s_5=""></barra-grafico_vertical>
+                <barra-grafico_vertical l_0="f_l_g" c_1="" c_2="cg_2_t" c_3="" c_4="" c_5="" s_1="" s_2="sg_2_t" s_3="" s_4="" s_5=""></barra-grafico_vertical>
+                <barra-grafico_vertical l_0="f_l_g" c_1="" c_2="cg_2_t" c_3="" c_4="" c_5="" s_1="" s_2="sg_2_t" s_3="" s_4="" s_5=""></barra-grafico_vertical>
+                <barra-grafico_vertical l_0="f_l_g" c_1="" c_2="cg_2_t" c_3="" c_4="" c_5="" s_1="" s_2="sg_2_t" s_3="" s_4="" s_5=""></barra-grafico_vertical>
+                <barra-grafico_vertical l_0="f_l_g" c_1="" c_2="cg_2_t" c_3="" c_4="" c_5="" s_1="" s_2="sg_2_t" s_3="" s_4="" s_5=""></barra-grafico_vertical>
+                <barra-grafico_vertical l_0="f_l_g" c_1="" c_2="cg_2_t" c_3="" c_4="" c_5="" s_1="" s_2="sg_2_t" s_3="" s_4="" s_5=""></barra-grafico_vertical>
+                <barra-grafico_vertical l_0="f_l_g" c_1="" c_2="cg_2_t" c_3="" c_4="" c_5="" s_1="" s_2="sg_2_t" s_3="" s_4="" s_5=""></barra-grafico_vertical>
+                <barra-grafico_vertical l_0="f_l_g" c_1="" c_2="cg_2_t" c_3="" c_4="" c_5="" s_1="" s_2="sg_2_t" s_3="" s_4="" s_5=""></barra-grafico_vertical>
+                <barra-grafico_vertical l_0="f_l_g" c_1="" c_2="cg_2_t" c_3="" c_4="" c_5="" s_1="" s_2="sg_2_t" s_3="" s_4="" s_5=""></barra-grafico_vertical>
+            </div>
+        </div>
+    </div>
+    <div class="contenedor-pre-modificacion">
+        <table id="tabla-pre-modificacion" class="tabla-proforma contenido-tabla">
+            <thead>
+                <tr>
+                    <th scope="row" colspan="12"><h2>Proforma</h2></th>
+                </tr>
+                <tr>
+                    <!-- <th>ID</th> -->
+                    <th>Sucursal</th>
+                    <th>Categoria</th>
+                    <th>Código</th>
+                    <th>Descripción</th>
+                    <th>Talla</th>
+                    <th>Existencias</th>
+                    <th>Costo de Compra</th>
+                    <th>Costo Total</th>
+                    <th>Precio de Venta</th>
+                    <th>Lote</th>
+                    <th>Proveedor</th>
+                    <th><span style="font-size:18px;" class="material-symbols-outlined">delete</span></th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+            <tfoot>
+                <th scope="row" colspan="12">
+                    <button id="procesar-modificacion-uno" class="myButtonAgregar">Enviar a Lista Productos</button>
+                    <button id="procesar-modificacion-dos" class="myButtonAgregar invisible">Enviar a Lista Productos</button>
+                    <button id="remover-tabla-modificacion-uno" class="eliminarTablaFila">Cancelar</button>
+                </th>
+            </tfoot>
+        </table>
+    </div>
+    <div class="contenedor_tabla">
+        <table id="tabla-proforma-modificacion" class="tabla-proforma">
+            <thead>
+                <tr>
+                    <th scope="row" colspan="12"><h2>Lista de Productos</h2></th>
+                </tr>
+                <tr>
+                    <!-- <th>ID</th> -->
+                    <th>Sucursal</th>
+                    <th>Categoría</th>
+                    <th>Código</th>
+                    <th>Descripción</th>
+                    <th>Talla</th>
+                    <th>Existencias</th>
+                    <th>Costo Unitario</th>
+                    <th>Costo Total</th>
+                    <th>Precio de Venta</th>
+                    <th>Lote</th>
+                    <th>Proveedor</th>
+                    <th style="width: 100%;" id="remover-tabla-modificacion-dos" class="eliminarTablaFila">
+                        <span style="font-size:18px;" class="material-symbols-outlined">delete</span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+            <tfoot>
+                <th scope="row" colspan="12">
+                    <button id="procesar-modificacion-principal" class="myButtonProcesar invisible">Procesar</button>
+                    <button id="procesar-registro" class="myButtonProcesar">Procesar</button>
+                </th>
+            </tfoot>
+        </table>
+    </div>
+</div>
+<script src="../static/modificacion.js"></script>
+{% endblock %}

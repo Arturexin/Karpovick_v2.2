@@ -1,0 +1,82 @@
+{% extends "index.html" %}
+
+{% block content %}
+<div class="ventas-form baja_opacidad">
+    <div class="contenedor_botones_ventas botones-compras">
+        <button id="apertura-caja" class="myButtonAgregarDos">Apertura de Caja</button>
+        <button id="entradas-caja" class="myButtonAgregarDos">Entradas de Caja</button>
+        <button id="salidas-caja" class="myButtonAgregarDos marcaBoton">Salidas de Caja</button>
+    </div>
+    <form id="formulario-gastos-varios" class="contenedor_gastos_varios">
+        <h2>Gastos Varios</h2>
+        <div>
+            <label class="label-general"> Concepto
+                <select name="concepto-gastos" id="concepto-gastos" class="input-general fondo">
+                    <option value="Caja Bancos">Caja Bancos</option>
+                    <option value="Servicios">Servicios</option>
+                    <option value="Otros Gastos">Otros Gastos</option>
+                </select>
+            </label>
+            <label class="label-general">Comprobante<input id="comprobante-gastos" class="input-general fondo" type="text"></label>
+            <label class="label-general">Monto<input id="monto-gastos" class="input-general fondo" type="text"></label>
+        </div>
+        
+        <div class="boton-cli">
+            <button id="procesar-gastos" class="myButtonAgregar">Procesar Gastos</button>
+        </div>
+    </form>
+    <div class="contenedor_kardex">
+        <table id="tabla-gastos-varios" class="tabla-proforma">
+            <thead>
+                <tr>
+                    <th scope="row" colspan="10"><h2>Gastos Varios</h2></th>
+                </tr>
+                <tr>
+                    <th scope="row" colspan="15">
+                        <div>
+                            <button id="buscarFiltrosGastosVarios">Buscar</button>
+                            <button id="restablecerGastosVarios">Restablecer</button>
+                        </div>
+                        <div>Fecha Inicio
+                            <input id="filtro-tabla-gastosVarios-fecha-inicio" type="date" class="input-filtro">
+                            Fecha Fin
+                            <input id="filtro-tabla-gastosVarios-fecha-fin" type="date" class="input-filtro">
+                        </div>
+                    </th>
+                </tr>
+                <tr>
+                    <th>Sucursal
+                        <input list="sucursales_opciones" id="filtro-tabla-gastosVarios-sucursal" class="input-filtro" placeholder="Sucursal" autocomplete="off">
+                        <datalist id="sucursales_opciones">
+                            <option value="Almacén Central"></option>
+                            <option value="Sucursal Uno"></option>
+                            <option value="Sucursal Dos"></option>
+                            <option value="Sucursal Tres"></option>
+                        </datalist> 
+                    </th>
+                    <th>Concepto<input id="filtro-tabla-gastosVarios-concepto" type="text" class="input-filtro" placeholder="Concepto"></th>
+                    <th>Comprobante<input id="filtro-tabla-gastosVarios-comprobante" type="text" class="input-filtro" placeholder="Comprobante"></th>
+                    <th>Monto</th>
+                    <th>Usuario<input id="filtro-tabla-gastosVarios-usuario" type="text" class="input-filtro" placeholder="Usuario"></th>
+                    <th>Fecha</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th scope="row" colspan="16">
+                        <button id="retrocederGastosVarios"><<  </button>
+                        <select id="numeracionTablaGastosVarios" style="width: 50px; text-align: center;">
+                        </select>
+                        <button id="avanzarGastosVarios">  >></button>
+                    </th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    
+</div>
+
+<script src="../static/salidas_caja.js"></script>
+{% endblock %}
