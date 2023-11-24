@@ -88,38 +88,52 @@ const registrarCategoria = document.getElementById("registrar-categoria");
 registrarCategoria.addEventListener("click", saveCategoria);
 async function saveCategoria(e) {
     e.preventDefault();
-    let data = {
-        "categoria_nombre": document.getElementById('categoria-configuracion').value,
-        "unidad_medida": document.getElementById('unidad-configuracion').value,
-        "cantidad_item": document.getElementById('cantidad-configuracion').value,
-        "uno": document.getElementById('uno-configuracion').value,
-        "dos": document.getElementById('dos-configuracion').value,
-        "tres": document.getElementById('tres-configuracion').value,
-        "cuatro": document.getElementById('cuatro-configuracion').value,
-        "cinco": document.getElementById('cinco-configuracion').value,
-        "seis": document.getElementById('seis-configuracion').value,
-        "siete": document.getElementById('siete-configuracion').value,
-        "ocho": document.getElementById('ocho-configuracion').value,
-        "nueve": document.getElementById('nueve-configuracion').value,
-        "diez": document.getElementById('diez-configuracion').value,
-        "once": document.getElementById('once-configuracion').value,
-        "doce": document.getElementById('doce-configuracion').value,
-    };
-    
-    let id = document.getElementById('id-configuracion').value
-    if (id != '') {
-        data.id = id
-    };
+    if(document.getElementById("categoria-configuracion").value !== "" &&
+    document.getElementById("cantidad-configuracion").value !== "" &&
+    document.getElementById("cantidad-configuracion").value > 0){
+        modal_proceso_abrir("Procesando el registro!!!.", "")
+        let data = {
+            "categoria_nombre": document.getElementById('categoria-configuracion').value,
+            "unidad_medida": document.getElementById('unidad-configuracion').value,
+            "cantidad_item": document.getElementById('cantidad-configuracion').value,
+            "uno": document.getElementById('uno-configuracion').value,
+            "dos": document.getElementById('dos-configuracion').value,
+            "tres": document.getElementById('tres-configuracion').value,
+            "cuatro": document.getElementById('cuatro-configuracion').value,
+            "cinco": document.getElementById('cinco-configuracion').value,
+            "seis": document.getElementById('seis-configuracion').value,
+            "siete": document.getElementById('siete-configuracion').value,
+            "ocho": document.getElementById('ocho-configuracion').value,
+            "nueve": document.getElementById('nueve-configuracion').value,
+            "diez": document.getElementById('diez-configuracion').value,
+            "once": document.getElementById('once-configuracion').value,
+            "doce": document.getElementById('doce-configuracion').value,
+        };
+        
+        let id = document.getElementById('id-configuracion').value
+        if (id != '') {
+            data.id = id
+        };
 
-    let url = URL_API_almacen_central + 'categorias'
-    let response = await funcionFetch(url, data);
-    console.log("Respuesta Categorías "+response.status)
-    if(response.ok){
-        alert("Operación completada.")
-        await searchCategorias();
-        formularioConfiguracionCategorias.reset();
-        localStorage.setItem("categoria_consulta", JSON.stringify(categorias))
-    };  
+        let url = URL_API_almacen_central + 'categorias'
+        let response = await funcionFetch(url, data);
+        console.log("Respuesta Categorías "+response.status)
+        if(response.ok){
+            modal_proceso_abrir("Operación completada exitosamente.", "")
+            modal_proceso_salir_botones()
+            await searchCategorias();
+            formularioConfiguracionCategorias.reset();
+            localStorage.setItem("categoria_consulta", JSON.stringify(categorias))
+        }; 
+    }else if(document.getElementById("categoria-configuracion").value === ""){
+        modal_proceso_abrir("Digite un nombre para la categoría.", "")
+        modal_proceso_salir_botones()
+    }else if(document.getElementById("cantidad-configuracion").value === "" ||
+    document.getElementById("cantidad-configuracion").value <= 0){
+        modal_proceso_abrir("Digite un número mayor a cero.", "")
+        modal_proceso_salir_botones()
+    };
+     
 };
 
 const numeroDeItem = document.getElementById("cantidad-configuracion");

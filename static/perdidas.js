@@ -31,7 +31,8 @@ document.addEventListener("keyup", (e) =>{
 const procesarPerdidas = document.getElementById("agregarATablaPrePerdidas");
 procesarPerdidas.addEventListener("click",async (e) =>{
     e.preventDefault();
-    if(document.getElementById("categoria-perdidas").value !== ""){
+    if(document.getElementById("codigo-perdidas").value !== ""){
+        modal_proceso_abrir(`Procesando la ${document.querySelector("#motivo_salida").value}!!!.`, "")
         let datoCodigoUnitario;
         let url = URL_API_almacen_central + `almacen_central_id_sucursal/${document.getElementById('id-perdidas').value}?`+
                                             `sucursal_get=${sucursales_activas[sucursal_indice_perdidas]}`
@@ -43,39 +44,33 @@ procesarPerdidas.addEventListener("click",async (e) =>{
         });
         datoCodigoUnitario = await response.json();
         let saldoPerdidas = 0;
-        function perdidasProductos(){
+        function DatosPerdidas(){
             this.idProd = document.getElementById('id-perdidas').value;
             this.sucursal_post = sucursales_activas[sucursal_indice_perdidas];
             this.existencias_post = datoCodigoUnitario.sucursal_get - document.getElementById('cantidad-perdida').value;
             saldoPerdidas = this.existencias_post;
-        };
-        
-        let perdidasEntradas = {
-            "idProd": document.getElementById('id-perdidas').value,
-            "comprobante": document.getElementById('motivo_salida').value,
-            "causa_devolucion": 0,
-            "fecha": fechaPrincipal,
-            "existencias_entradas": -(document.getElementById('cantidad-perdida').value),
-            "sucursal": sucursal_id_perdidas,
-            "usuario": document.getElementById("identificacion_usuario_id").textContent,
-            "existencias_devueltas": 0,
-        };
-        let perdProd = new perdidasProductos()
+            this.comprobante = document.getElementById('motivo_salida').value;
+            this.existencias_entradas = -(document.getElementById('cantidad-perdida').value);
+            this.sucursal = sucursal_id_perdidas;
+        }
+        let perdProd = new DatosPerdidas()
         if(document.getElementById('cantidad-perdida').value > 0 && saldoPerdidas >= 0){
-            let urlProductos = URL_API_almacen_central + 'almacen_central_operacion'
+            let urlProductos = URL_API_almacen_central + 'procesar_recompra'
             let respuesta_productos = await funcionFetch(urlProductos, perdProd);
             console.log(respuesta_productos.status)
-            let urlSalidas = URL_API_almacen_central + 'entradas'
-            let respuesta_entradas = await funcionFetch(urlSalidas, perdidasEntradas);
-            console.log(respuesta_entradas.status)
-            alert("Producto procesado");
-            formularioPerdidas.reset();
-            document.getElementById("buscador-perdidas").focus();
+            if(respuesta_productos.status === 200){
+                modal_proceso_abrir("Producto procesado", "")
+                modal_proceso_salir_botones()
+                formularioPerdidas.reset();
+                document.getElementById("buscador-perdidas").focus();
+            }
         }else if(document.getElementById('cantidad-perdida').value <= 0){
-            alert("Coloque una cantidad mayor a cero.")
+            modal_proceso_abrir("Coloque una cantidad mayor a cero.", "")
+            modal_proceso_salir_botones()
             document.getElementById("cantidad-perdida").focus();
         }else if(saldoPerdidas < 0){
-            alert("No cuenta con stock suficiente.")
+            modal_proceso_abrir("No cuenta con stock suficiente.", "")
+            modal_proceso_salir_botones()
         };
     };
 });

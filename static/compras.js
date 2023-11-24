@@ -248,7 +248,6 @@ function agregarAtablaCompras(e){
     expregul.cantidad.test(document.getElementById("lote-compras").value) &&
     expregul.precios.test(document.getElementById("costo-compras").value) &&
     expregul.precios.test(document.getElementById("precio-compras").value)){
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         document.querySelector(".contenedor-pre-recompra").classList.add("modal-show")
         categoriaProductosCreacion("categoria-compras", arrayCreacionCategoriaTallasCompras);
         compararCodigosNuevos(".codigo_compras_modal", codigoComprobacionCompra);

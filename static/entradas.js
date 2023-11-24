@@ -332,7 +332,8 @@ async function procesamientoEntradasDevoluciones(e){
     (Number(document.getElementById("accion_existencias_entradas").value) >= Number(document.getElementById("accion_saldo_devolucion_entradas").value)) &&
     Number(document.getElementById("accion_existencias_productos_entradas").value) > 0){
         try{
-            await funcionAccionDevolucionProductosE()
+            modal_proceso_abrir("Procesando la devolución de la compra!!!.", "")
+            await realizarDevolucionComprasEntradas()
             await searchEntradas((document.getElementById("numeracionTablaEntradas").value - 1) * 20,
                                 document.getElementById("filtro-tabla-entradas-sucursal").value, 
                                 document.getElementById("filtro-tabla-entradas-categoria").value, 
@@ -340,71 +341,45 @@ async function procesamientoEntradasDevoluciones(e){
                                 document.getElementById("filtro-tabla-entradas-operacion").value,
                                 inicio,
                                 fin);
-            
         }catch(error){
-            alert("Ocurrió un error. " + error);
+            modal_proceso_abrir("Ocurrió un error. " + error, "")
             console.error("Ocurrió un error. ", error)
+            modal_proceso_salir_botones()
         };
     }else if(Number(document.getElementById("accion_editar_entradas").value) <= 0){
-        alert("Las unidades a devolver deben ser mayores a cero.")
+        modal_proceso_abrir("Las unidades a devolver deben ser mayores a cero.", "")
+        modal_proceso_salir_botones()
     }else if(Number(document.getElementById("accion_existencias_entradas").value) < Number(document.getElementById("accion_saldo_devolucion_entradas").value)){
-        alert("Las unidades a devolver no deben ser mayores a las unidades en existencia.")
+        modal_proceso_abrir("Las unidades a devolver no deben ser mayores a las unidades en existencia.", "")
+        modal_proceso_salir_botones()
     }else if(Number(document.getElementById("accion_existencias_productos_entradas").value) <= 0){
-        alert("El stock en inventario es cero.")
-    }
-    
+        modal_proceso_abrir("El stock en inventario es cero.", "")
+        modal_proceso_salir_botones()
+    };
 };
-async function funcionAccionDevolucionProductosE() {
-    function EnviarDevolucionAProductos(){
+async function realizarDevolucionComprasEntradas(){
+    function DatosDevolucionComprasEntradas(){
         this.idProd = document.getElementById("accion_id_productos").value;
         this.sucursal_post = sucursales_activas[indice_sucursal_entradas];
         this.existencias_post = document.getElementById("accion_saldo_productos_entradas").value;
+        this.idEntr = document.getElementById('accion_id_entradas').value;
+        this.existencias_entradas_update = document.getElementById('accion_existencias_entradas').value;
+        this.existencias_devueltas_update = document.getElementById("accion_saldo_devolucion_entradas").value;
+        this.comprobante = "Dev-" + document.getElementById('accion_comprobante_entradas').value;
+        this.causa_devolucion = document.getElementById("accion_causa_devolucion_entradas").value;
+        this.sucursal = sucursal_id_entradas;
+        this.existencias_devueltas_insert = document.getElementById("accion_editar_entradas").value;
     };
-    let filaProducto = new EnviarDevolucionAProductos();
-    let url = URL_API_almacen_central + 'almacen_central_operacion'
+    let filaProducto = new DatosDevolucionComprasEntradas();
+    let url = URL_API_almacen_central + 'procesar_devolucion_compras'
     let response = await funcionFetch(url, filaProducto)
     console.log("Respuesta Productos "+response.status)
     if(response.status === 200){
-        await funcionAccionDevolucionEntradasUno()
-    }else{
-        alert(`Ocurrió un problema Productos`)
-    };
-};
-async function funcionAccionDevolucionEntradasUno(){
-    function editarEntradas(){
-        this.idEntr = document.getElementById('accion_id_entradas').value;
-        this.existencias_entradas = document.getElementById('accion_existencias_entradas').value;
-        this.existencias_devueltas = document.getElementById("accion_saldo_devolucion_entradas").value;
-    };
-    let filaUnoEntradasR = new editarEntradas();
-    let urlEntradas = URL_API_almacen_central + 'entradas'
-    let response = await funcionFetch(urlEntradas, filaUnoEntradasR)
-    console.log("Respuesta Entradas Uno "+response.status)
-    if(response.status === 200){
-        await funcionAccionDevolucionEntradasDos()
-    }else{
-        alert(`Ocurrió un problema Entradas Uno`)
-    };
-};
-async function funcionAccionDevolucionEntradasDos(){
-    function EnviarAEntradasNuevaFila(){
-        this.idProd = document.getElementById("accion_id_productos").value;
-        this.comprobante = "Dev-" + document.getElementById('accion_comprobante_entradas').value;
-        this.causa_devolucion = document.getElementById("accion_causa_devolucion_entradas").value;
-        this.fecha = fechaPrincipal;
-        this.existencias_entradas = 0;
-        this.sucursal = sucursal_id_entradas;
-        this.usuario = document.getElementById("identificacion_usuario_id").textContent;
-        this.existencias_devueltas = document.getElementById("accion_editar_entradas").value;
-    };
-    let filaDosEntradas = new EnviarAEntradasNuevaFila();
-    let urlEntradasDos = URL_API_almacen_central + 'entradas'
-    let response = await funcionFetch(urlEntradasDos, filaDosEntradas)
-    console.log("Respuesta Entradas Dos "+response.status)
-    if(response.status === 200){
-        alert("Operación completada exitosamente.")
+        modal_proceso_abrir("Operación completada exitosamente.", "")
+        modal_proceso_salir_botones()
         document.getElementById("acciones_rapidas_entradas").classList.remove("modal-show-entrada")
     }else{
-        alert(`Ocurrió un problema Entradas Uno`)
+        modal_proceso_abrir(`Ocurrió un problema en la devolución`, "")
+        modal_proceso_salir_botones()
     };
 };

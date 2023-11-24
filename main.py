@@ -181,7 +181,7 @@ def getAllProveedores():
             resultado.append(content)
         return jsonify(resultado)
     except Exception as e:
-            return jsonify({'error': str(e)}), 500
+        return jsonify({'error': str(e)}), 500
 ###------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 @app.route('/api/clientes_mes')
 @cross_origin()
@@ -211,7 +211,7 @@ def getAllClientesMes():
             resultado.append(content)
         return jsonify(resultado)
     except Exception as e:
-            return jsonify({'error': str(e)}), 500
+        return jsonify({'error': str(e)}), 500
 ###-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 @app.route('/api/clientes/<int:id_cli>')
 @cross_origin()
@@ -239,7 +239,7 @@ def getClientes(id_cli):
             }
         return jsonify(content)
     except Exception as e:
-            return jsonify({'error': str(e)}), 500
+        return jsonify({'error': str(e)}), 500
     
 @app.route('/api/clientes', methods=['POST'])
 @cross_origin()
@@ -252,12 +252,14 @@ def createClientes():
 
 def createCliente():
     usuarioLlave = session.get('usernameDos')
+    usuarioId = session.get('identificacion_usuario')
+    current_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     try:
         with mysql.connection.cursor() as cur:
             query = ("INSERT INTO `clientes` (`id_cli`, `nombre_cli`, `dni_cli`, `email_cli`, `telefono_cli`, `direccion_cli`, `usuario_cli`, `clase_cli`, `fecha_cli`, `identificador_cli`) "
                      "VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
             data = (request.json['nombre_cli'], request.json['dni_cli'], request.json['email_cli'], request.json['telefono_cli'], 
-                    request.json['direccion_cli'], request.json['usuario_cli'], request.json['clase_cli'], request.json['fecha_cli'], usuarioLlave)
+                    request.json['direccion_cli'], usuarioId, request.json['clase_cli'], current_date, usuarioLlave)
             cur.execute(query, data)
             mysql.connection.commit()
         return jsonify({"status": "success", "message": "Persona creada correctamente."})
@@ -2270,7 +2272,6 @@ def saveNumeracionComprobante():
 
 def createNumeracionComprobante():
     try:
-        usuarioLlave = session.get('usernameDos')
         with mysql.connection.cursor() as cur:
             query = ("INSERT INTO `numeracion_comprobante` (`id`, `compras`, `recompras`, `transferencias`, `ventas`, `nota_venta`, `boleta_venta`, `factura`, `identificador`) "
                      "VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s)")
@@ -3010,8 +3011,8 @@ def registro():
             mysql.connection.commit()
         return render_template('login.html')
     except Exception as e:
-            mysql.connection.rollback()
-            return jsonify({"status": "error", "message": str(e)})
+        mysql.connection.rollback()
+        return jsonify({"status": "error", "message": str(e)})
     
 @app.route('/registroInterno',methods=['POST'])#configuración
 @cross_origin()
@@ -3034,8 +3035,8 @@ def registroInternoCreate():
             mysql.connection.commit()
         return jsonify({"status": "success", "message": "Usuario creado correctamente."})
     except Exception as e:
-            mysql.connection.rollback()
-            return jsonify({"status": "error", "message": str(e)})
+        mysql.connection.rollback()
+        return jsonify({"status": "error", "message": str(e)})
     
 
 def registroInternoEdit():
@@ -3051,8 +3052,8 @@ def registroInternoEdit():
             mysql.connection.commit()
         return jsonify({"status": "success", "message": "Usuario actualizado correctamente."})
     except Exception as e:
-            mysql.connection.rollback()
-            return jsonify({"status": "error", "message": str(e)})
+        mysql.connection.rollback()
+        return jsonify({"status": "error", "message": str(e)})
 
 @app.route('/api/usuarios/<int:id>', methods=['DELETE'])
 @cross_origin()
@@ -3598,8 +3599,8 @@ def editSucursales():#Configuración
             mysql.connection.commit()
         return jsonify({"status": "success", "message": "Usuario actualizado correctamente."})
     except Exception as e:
-            mysql.connection.rollback()
-            return jsonify({"status": "error", "message": str(e)})
+        mysql.connection.rollback()
+        return jsonify({"status": "error", "message": str(e)})
     
 @app.route('/api/sucursales_create_control', methods=['POST'])#Control
 @cross_origin()
@@ -3630,8 +3631,8 @@ def editSucursalesControl():
             mysql.connection.commit()
         return jsonify({"status": "success", "message": "Usuario actualizado correctamente."})
     except Exception as e:
-            mysql.connection.rollback()
-            return jsonify({"status": "error", "message": str(e)})
+        mysql.connection.rollback()
+        return jsonify({"status": "error", "message": str(e)})
 
 # fin distribución de funciones <---------|
 
@@ -3886,10 +3887,12 @@ def salidas_caja():
         return render_template('salidas_caja.html', puesto=puesto, identificacion_usuario=identificacion_usuario, usuario_nombre=usuario_nombre)
 ###########################################
 def status_401(error):
-    return redirect(url_for('login'))
+    if error:
+        return redirect(url_for('login'))
 
 def status_404(error):
-    return "<h1>Página no encontrada</h1>", 404
+    if error:
+        return f"<h1>Página no encontrada</h1>{error}", 404
 
 if __name__ == '__main__':
     #csrf.init_app(app)

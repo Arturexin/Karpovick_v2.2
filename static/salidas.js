@@ -334,10 +334,10 @@ async function procesamientoSalidasDevoluciones(e){
     e.preventDefault();
     manejoDeFechasSalidas()
     if(Number(document.getElementById("accion_editar_salidas").value) > 0 && 
-    (Number(document.getElementById("accion_existencias_salidas").value) >= Number(document.getElementById("accion_saldo_devolucion_salidas").value))/*  &&
-    Number(document.getElementById("accion_existencias_productos_salidas").value) > 0 */){
+    (Number(document.getElementById("accion_existencias_salidas").value) >= Number(document.getElementById("accion_saldo_devolucion_salidas").value))){
         try{
-            await funcionAccionDevolucionProductosS()
+            modal_proceso_abrir("Procesando la devolución de la venta!!!.", "")
+            await realizarDevolucionSalidasSalidas()
             await searchSalidas((document.getElementById("numeracionTablaSalidas").value - 1) * 20,
                                 document.getElementById("filtro-tabla-salidas-sucursal").value, 
                                 document.getElementById("filtro-tabla-salidas-categoria").value, 
@@ -346,73 +346,48 @@ async function procesamientoSalidasDevoluciones(e){
                                 inicio,
                                 fin)
         }catch(error){
-            alert("Ocurrió un error. " + error);
+            modal_proceso_abrir("Ocurrió un error. " + error, "")
             console.error("Ocurrió un error. ", error)
+            modal_proceso_salir_botones()
         };
     }else if(Number(document.getElementById("accion_editar_salidas").value) <= 0){
-        alert("Las unidades a devolver deben ser mayores a cero.")
+        modal_proceso_abrir("Las unidades a devolver deben ser mayores a cero.", "")
+        modal_proceso_salir_botones()
     }else if(Number(document.getElementById("accion_existencias_salidas").value) < Number(document.getElementById("accion_saldo_devolucion_salidas").value)){
-        alert("Las unidades a devolver no deben ser mayores a las unidades en existencia.")
-    }/* else if(Number(document.getElementById("accion_existencias_productos_salidas").value) <= 0){
-        alert("El stock en inventario es cero.")
-    } */
+        modal_proceso_abrir("Las unidades a devolver no deben ser mayores a las unidades en existencia.", "")
+        modal_proceso_salir_botones()
+    };
     
 };
-async function funcionAccionDevolucionProductosS(){
-    function EnviarDevolucionAProductos(){
+async function realizarDevolucionSalidasSalidas(){
+    function DatosDeDevolucionSalidasSalidas(){
         this.idProd = document.getElementById("accion_id_productos").value;
         this.sucursal_post = sucursales_activas[indice_sucursal_salidas];
         this.existencias_post = document.getElementById("accion_saldo_productos_salidas").value;
+
+        this.idSal = document.getElementById('accion_id_salidas').value;
+        this.existencias_salidas_update = document.getElementById('accion_existencias_salidas').value;
+        this.existencias_devueltas_update = document.getElementById("accion_saldo_devolucion_salidas").value;
+
+        this.comprobante = "Dev-" + document.getElementById("accion_comprobante_salidas").value;
+        this.causa_devolucion = document.getElementById("accion_causa_devolucion_salidas").value;
+        this.precio_venta_salidas = document.getElementById("accion_precio_venta_salidas").value;
+        this.sucursal = sucursal_id_salidas;
+        this.existencias_devueltas_insert = document.getElementById("accion_editar_salidas").value;
     };
-    let filaProducto = new EnviarDevolucionAProductos();
-    let url = URL_API_almacen_central + 'almacen_central_operacion'
+    let filaProducto = new DatosDeDevolucionSalidasSalidas();
+    let url = URL_API_almacen_central + 'procesar_devolución_salidas'
     let response = await funcionFetch(url, filaProducto)
     console.log("Respuesta Productos "+response.status)
     if(response.status === 200){
-        await funcionAccionDevolucionSalidasUno()
-    }else{
-        alert(`Ocurrió un problema Productos`)
-    };
-};
-async function funcionAccionDevolucionSalidasUno(){
-    function EnviarASalidas(){
-        this.idSal = document.getElementById('accion_id_salidas').value;
-        this.precio_venta_salidas = document.getElementById('accion_precio_venta_salidas').value;
-        this.existencias_salidas = document.getElementById('accion_existencias_salidas').value;
-        this.existencias_devueltas = document.getElementById("accion_saldo_devolucion_salidas").value;
-    };
-    let filaUnoSalidas = new EnviarASalidas();
-    let urlSalidas = URL_API_almacen_central + 'salidas'
-    let response = await funcionFetch(urlSalidas, filaUnoSalidas)
-    console.log("Respuesta Salidas Uno "+response.status)
-    if(response.status === 200){
-        await funcionAccionDevolucionSalidasDos()
-    }else{
-        alert(`Ocurrió un problema Salidas Uno`)
-    };
-};
-async function funcionAccionDevolucionSalidasDos(){
-    function EnviarASalidasNuevaFila(){
-        this.idProd = document.getElementById("accion_id_productos").value;
-        this.cliente = 1;
-        this.comprobante = "Dev-" + document.getElementById("accion_comprobante_salidas").value;
-        this.causa_devolucion = document.getElementById("accion_causa_devolucion_salidas").value;
-        this.fecha = fechaPrincipal;
-        this.precio_venta_salidas = document.getElementById("accion_precio_venta_salidas").value;
-        this.sucursal = sucursal_id_salidas;
-        this.existencias_salidas = 0;
-        this.existencias_devueltas = document.getElementById("accion_editar_salidas").value;
-        this.usuario = document.getElementById("identificacion_usuario_id").textContent;
-    };
-    let filaDosSalidas = new EnviarASalidasNuevaFila();
-    let urlSalidasdos = URL_API_almacen_central + 'salidas'
-    let response = await funcionFetch(urlSalidasdos, filaDosSalidas)
-    console.log("Respuesta Salidas Dos "+response.status)
-    if(response.status === 200){
+        modal_proceso_abrir("Procesando la devolución de la venta!!!.", "Devolución ejecutada.")
+        console.log(`Devolución ejecutada.`)
         await obteniendoDatosDeVentaUno()
     }else{
-        alert(`Ocurrió un problema Salidas Dos`)
+        modal_proceso_abrir(`Ocurrió un problema en la devolución`, "")
+        modal_proceso_salir_botones()
     };
+
 };
 async function obteniendoDatosDeVentaUno(){
     let comprobacionIdDetalleVentas = 0;
@@ -443,9 +418,12 @@ async function obteniendoDatosDeVentaUno(){
     let response = await funcionFetch(urlMetodoDePago, metodoPago);
     console.log("Respuesta Obtención datos "+response.status)
     if(response.status === 200){
+        modal_proceso_abrir("Procesando la devolución de la venta!!!.", `Detalle de venta ejecutado.`)
+        console.log(`Detalle de venta ejecutado.`)
         await funcionAccionGastosVariosS()
     }else{
-        alert(`Ocurrió un problema Obtención datos`)
+        modal_proceso_abrir(`Ocurrió un problema en detalle de venta.`, "")
+        modal_proceso_salir_botones()
     };
 };
 async function funcionAccionGastosVariosS(){
@@ -462,10 +440,13 @@ async function funcionAccionGastosVariosS(){
     let response = await funcionFetch(urlGastosVarios, dataGastosVarios)
     console.log("Respuesta Gastos "+response.status)
     if(response.status === 200){
-        alert("Operación completada exitosamente.")
+        modal_proceso_abrir("Operación completada exitosamente.", "")
+        console.log(`Gastos varios ejecutado.`)
+        modal_proceso_salir_botones()
         document.getElementById("acciones_rapidas_salidas").classList.remove("modal-show-salida")
     }else{
-        alert(`Ocurrió un problema Gastos`)
+        modal_proceso_abrir(`Ocurrió un problema en gastos varios.`, "")
+        modal_proceso_salir_botones()
     };
 };
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

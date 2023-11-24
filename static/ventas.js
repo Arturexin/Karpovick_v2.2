@@ -43,29 +43,45 @@ document.getElementById("boton-buscar-ventas-clientes").addEventListener("click"
         let cliente = indice_cli.find(y => y.nombre_cli.toLowerCase().includes(document.getElementById('buscar-cliente-ventas').value.toLowerCase()))
         if(indice_cli.find(y => y.nombre_cli.toLowerCase().includes(document.getElementById('buscar-cliente-ventas').value.toLowerCase()))){
             buscarClienteVentas(cliente)
+            modal_proceso_abrir("Cliente encontrado.", "")
+            modal_proceso_salir_botones()
         }else{
-            alert("Cliente no encontrado")
+            modal_proceso_abrir("Cliente no encontrado", "")
+            modal_proceso_salir_botones()
+            document.getElementById("formularioClientesVentas").reset();
         };
     }else if(document.getElementById("opcion-buscar-cliente").value == 2){
         let cliente = indice_cli.find(y => y.dni_cli.toLowerCase().includes(document.getElementById('buscar-cliente-ventas').value.toLowerCase()))
         if(indice_cli.find(y => y.dni_cli.toLowerCase().includes(document.getElementById('buscar-cliente-ventas').value.toLowerCase()))){
             buscarClienteVentas(cliente)
+            modal_proceso_abrir("Cliente encontrado.", "")
+            modal_proceso_salir_botones()
         }else{
-            alert("Cliente no encontrado")
+            modal_proceso_abrir("Cliente no encontrado", "")
+            modal_proceso_salir_botones()
+            document.getElementById("formularioClientesVentas").reset();
         };
     }else if(document.getElementById("opcion-buscar-cliente").value == 3){
         let cliente = indice_cli.find(y => y.email_cli.toLowerCase().includes(document.getElementById('buscar-cliente-ventas').value.toLowerCase()))
         if(indice_cli.find(y => y.email_cli.toLowerCase().includes(document.getElementById('buscar-cliente-ventas').value.toLowerCase()))){
             buscarClienteVentas(cliente)
+            modal_proceso_abrir("Cliente encontrado.", "")
+            modal_proceso_salir_botones()
         }else{
-            alert("Cliente no encontrado")
+            modal_proceso_abrir("Cliente no encontrado", "")
+            modal_proceso_salir_botones()
+            document.getElementById("formularioClientesVentas").reset();
         };
     }else if(document.getElementById("opcion-buscar-cliente").value == 4){
         let cliente = indice_cli.find(y => y.telefono_cli.toLowerCase().includes(document.getElementById('buscar-cliente-ventas').value.toLowerCase()))
         if(indice_cli.find(y => y.telefono_cli.toLowerCase().includes(document.getElementById('buscar-cliente-ventas').value.toLowerCase()))){
             buscarClienteVentas(cliente)
+            modal_proceso_abrir("Cliente encontrado.", "")
+            modal_proceso_salir_botones()
         }else{
-            alert("Cliente no encontrado")
+            modal_proceso_abrir("Cliente no encontrado", "")
+            modal_proceso_salir_botones()
+            document.getElementById("formularioClientesVentas").reset();
         };
     };
     conteoCliente()
@@ -86,15 +102,14 @@ async function saveClientesVentas(e) {
         if(expregul.cliente.test(document.getElementById("clientesv").value) &&
             expregul.telefono.test(document.getElementById("telefonov").value) &&
             expregul.direccion.test(document.getElementById("direccionv").value)){
+            modal_proceso_abrir("Procesando el registro!!!.", "")    
             let data = {
                 "clase_cli": 0,
                 "direccion_cli": document.getElementById('direccionv').value,
                 "dni_cli": document.getElementById('dniv').value,
                 "email_cli": document.getElementById('emailv').value,
                 "nombre_cli": document.getElementById('clientesv').value,
-                "telefono_cli": document.getElementById('telefonov').value,
-                "usuario_cli": document.getElementById("identificacion_usuario_id").textContent,
-                "fecha_cli": fechaPrincipal
+                "telefono_cli": document.getElementById('telefonov').value
             };
             let url = URL_API_almacen_central + 'clientes'
             let response = await funcionFetch(url, data);
@@ -104,21 +119,26 @@ async function saveClientesVentas(e) {
                 localStorage.setItem("base_datos_cli", JSON.stringify(clientes_ventas))
                 indice_cli = JSON.parse(localStorage.getItem("base_datos_cli"))
                 buscarIdNuevo()
-                alert("Cliente registrado.");
+                modal_proceso_abrir("Cliente registrado!!!.", "")
+                modal_proceso_salir_botones()
             };
         }else if(expregul.cliente.test(document.getElementById("clientesv").value) == false){
             document.getElementById("clientesv").style.background = "#b36659"
-            alert("Ingrese un nombre de cliente correcto")
+            modal_proceso_abrir("Ingrese un nombre de cliente correcto.", "")
+            modal_proceso_salir_botones()
         }else if(expregul.telefono.test(document.getElementById("telefonov").value) == false){
             document.getElementById("telefonov").style.background = "#b36659"
-            alert("Ingrese un número de teléfono o celular")
+            modal_proceso_abrir("Ingrese un número de teléfono o celular.", "")
+            modal_proceso_salir_botones()
         }else if(expregul.direccion.test(document.getElementById("direccionv").value) == false){
             document.getElementById("direccionv").style.background = "#b36659"
-            alert("Ingrese una dirección")
+            modal_proceso_abrir("Ingrese una dirección.", "")
+            modal_proceso_salir_botones()
         };
     }else{
-        alert(`El cliente ${document.getElementById("clientesv").value} con numero de teléfono `+
-        `${document.getElementById("telefonov").value} ya se encunetra registrado.`)
+        modal_proceso_abrir(`El cliente ${document.getElementById("clientesv").value} con numero de teléfono `+
+        `${document.getElementById("telefonov").value} ya se encunetra registrado.`, "")
+        modal_proceso_salir_botones()
     };
 };
 function buscarIdNuevo(){

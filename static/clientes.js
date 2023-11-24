@@ -256,6 +256,7 @@ const registrarCliente = document.getElementById("registrar-cliente");
 registrarCliente.addEventListener("click", saveClientes)
 async function saveClientes(e) {
     e.preventDefault();
+    modal_proceso_abrir("Procesando el registro!!!.", "")
     let base_datos_clientes = JSON.parse(localStorage.getItem("base_datos_cli"))
     let encontrado = base_datos_clientes.find(y => y.nombre_cli.toLowerCase().startsWith(document.getElementById("nombre").value.toLowerCase()) && 
                                             y.telefono_cli.toLowerCase().startsWith(document.getElementById("telefono").value.toLowerCase()))
@@ -270,9 +271,7 @@ async function saveClientes(e) {
                 "dni_cli": document.getElementById('dni').value,
                 "email_cli": document.getElementById('email').value,
                 "nombre_cli": document.getElementById('nombre').value,
-                "telefono_cli": document.getElementById('telefono').value,
-                "usuario_cli": document.getElementById("identificacion_usuario_id").textContent,
-                "fecha_cli": fechaPrincipal
+                "telefono_cli": document.getElementById('telefono').value
             };
                 
             let id = document.getElementById('txtId').value
@@ -280,13 +279,7 @@ async function saveClientes(e) {
                 dataS.id_cli = id
             };
             let url = URL_API_almacen_central + 'clientes'
-            let response = await fetch(url,{
-                "method": 'POST',
-                "body": JSON.stringify(dataS),
-                "headers": {
-                    "Content-Type": 'application/json'
-                }
-            });
+            let response = await funcionFetch(url, dataS)
             if(response.status === 200){
                 await searchClientes((document.getElementById("numeracionTablaClientes").value - 1) * 20, 
                                 document.getElementById("filtro-tabla-clientes-nombre").value, 
@@ -300,11 +293,13 @@ async function saveClientes(e) {
                 if(document.getElementById('clase_cli').value == 0){
                     await llenarClientes();
                     localStorage.setItem("base_datos_cli", JSON.stringify(clientes_ventas))
-                    alert("Cliente registrado.");
+                    modal_proceso_abrir("Cliente registrado.", "")
+                    modal_proceso_salir_botones()
                 }else if(document.getElementById('clase_cli').value == 1){
                     await llenarProveedores();
                     localStorage.setItem("base_datos_prov", JSON.stringify(proveedores))
-                    alert("Proveedor registrado.");   
+                    modal_proceso_abrir("Proveedor registrado.", "")
+                    modal_proceso_salir_botones() 
                 }
                 formClientes.reset();
                 document.getElementById('txtId').value = ""
@@ -312,17 +307,21 @@ async function saveClientes(e) {
             };
         }else if(expregul.cliente.test(document.getElementById("nombre").value) == false){
             document.getElementById("nombre").style.background = "#b36659"
-            alert("Ingrese un nombre de cliente correcto")
+            modal_proceso_abrir("Ingrese un nombre de cliente correcto", "")
+            modal_proceso_salir_botones()
         }else if(expregul.telefono.test(document.getElementById("telefono").value) == false){
             document.getElementById("telefono").style.background = "#b36659"
-            alert("Ingrese un número de teléfono o celular")
+            modal_proceso_abrir("Ingrese un número de teléfono o celular", "")
+            modal_proceso_salir_botones()
         }else if(expregul.direccion.test(document.getElementById("direccion").value) == false){
             document.getElementById("direccion").style.background = "#b36659"
-            alert("Ingrese una dirección")
+            modal_proceso_abrir("Ingrese una dirección", "")
+            modal_proceso_salir_botones()
         };
     }else{
-        alert(`El cliente/proveedor ${document.getElementById("nombre").value} con numero de teléfono `+
-        `${document.getElementById("telefono").value} ya se encunetra registrado.`)
+        modal_proceso_abrir(`El cliente/proveedor ${document.getElementById("nombre").value} con numero de teléfono `+
+        `${document.getElementById("telefono").value} ya se encunetra registrado.`, "")
+        modal_proceso_salir_botones()
     };
 };
 /////////////////////////////////////////////////////////////////////////////////////////////
