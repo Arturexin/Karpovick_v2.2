@@ -531,7 +531,7 @@ def getProductosDos(codigo):
                      "FROM almacen_central "
                      "WHERE `identificadorProd` = %s "
                      "AND codigo LIKE %s")
-            data_params = (usuarioLlave, f"%{codigo}%")
+            data_params = (usuarioLlave, f"{codigo}%")
             cur.execute(query, data_params)
             data = cur.fetchall()
         contenido = {}
@@ -568,7 +568,7 @@ def getProductosDosSucursal(codigo):
                     "FROM almacen_central "
                     "WHERE `identificadorProd` = %s "
                     "AND codigo LIKE %s")
-            data_params = (usuarioLlave, f"%{codigo}%")
+            data_params = (usuarioLlave, f"{codigo}%")
             cur.execute(query, data_params)
             data = cur.fetchall()
         contenido = {}
@@ -698,6 +698,49 @@ def removeProductos(idProd):
         return "Producto eliminado"
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@app.route('/api/procesar_transferencia', methods=['POST'])##Transferencias
+@cross_origin()
+@login_required
+def operarTransferencia():
+    try:
+        sucursal_post = request.json['sucursal_post']
+        sucursal_post_dos = request.json['sucursal_post_dos']
+        
+        usuarioLlave = session.get('usernameDos')
+        usuarioId = session.get('identificacion_usuario')
+        current_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+        if sucursal_post and sucursal_post_dos not in ['existencias_ac', 'existencias_su', 'existencias_sd', 'existencias_st']:
+            return jsonify({"status": "error", "message": "Sucursal no válida"}), 400
+        
+        with mysql.connection.cursor() as cur:
+            query_productos = (f"UPDATE `almacen_central` SET {sucursal_post} = %s,  {sucursal_post_dos} = %s"
+                     "WHERE `almacen_central`.`idProd` = %s "
+                     "AND identificadorProd = %s")
+            data_productos = (request.json['existencias_post'], request.json['existencias_post_dos'], request.json['idProd'], usuarioLlave)
+            cur.execute(query_productos, data_productos)
+            mysql.connection.commit()
+
+            query_entradas = ("INSERT INTO `entradas` "
+                            "(`idEntr`, `idProd`, `sucursal`, `existencias_entradas`, `comprobante`, `causa_devolucion`, `usuario`, `fecha`, `existencias_devueltas`, `identificadorEntr`) "
+                            "VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
+            data_entradas = (request.json['idProd'], request.json['sucursal_entradas'], request.json['existencias'], request.json['comprobante'], 0, 
+                            usuarioId, current_date, 0, usuarioLlave)
+            cur.execute(query_entradas, data_entradas)
+            mysql.connection.commit()
+
+            query_salidas = ("INSERT INTO `salidas` "
+                     "(`idSal`, `idProd`, `sucursal`, `existencias_salidas`, `precio_venta_salidas`,`comprobante`, `causa_devolucion`, `cliente`, `usuario`, `fecha`, `existencias_devueltas`, `identificadorSal`) "
+                     "VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
+            data_salidas = (request.json['idProd'], request.json['sucursal_salidas'], request.json['existencias'], 0, request.json['comprobante'], 
+                    0, 1, usuarioId, current_date, 0, usuarioLlave)
+            cur.execute(query_salidas, data_salidas)
+            mysql.connection.commit()
+        return jsonify({"status": "success", "message": "Catidades actualizadas correctamente."}), 200
+    except Exception as e:
+        mysql.connection.rollback()
+        return jsonify({"status": "error", "message": str(e)}), 500
 ##########################################################################################################################################################################
 # Datos de la tabla ENTRADAS y base de datos entradas
 ##########################################################################################################################################################################
@@ -1062,7 +1105,7 @@ def getEntradasCodigoKardex(codigo):
                      "WHERE `identificadorEntr` = %s "
                      "AND sucursal LIKE %s "
                      "AND codigo LIKE %s")
-            data_params = (usuarioLlave, f"{entradas_sucursal}%", f"%{codigo}%")
+            data_params = (usuarioLlave, f"{entradas_sucursal}%", f"{codigo}%")
             cur.execute(query, data_params)
             data = cur.fetchall()
 
@@ -1093,7 +1136,7 @@ def getEntradasComprobante(comprobante):
                      "JOIN sucursales ON `entradas`.`sucursal` = `sucursales`.`id_sucursales` "
                      "WHERE `identificadorEntr` = %s "
                      "AND comprobante LIKE %s")
-            data_params = (usuarioLlave, f"%{comprobante}%")
+            data_params = (usuarioLlave, f"{comprobante}%")
             cur.execute(query, data_params)
             data = cur.fetchall()
 
@@ -1166,6 +1209,79 @@ def removeEntradas(idEntr):
         return "Entrada eliminada."
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@app.route('/api/procesar_devolucion_compras', methods=['POST'])##Devolición por compras
+@cross_origin()
+@login_required
+def operarRecompra():
+    try:
+        sucursal_post = request.json['sucursal_post']
+        usuarioLlave = session.get('usernameDos')
+        usuarioId = session.get('identificacion_usuario')
+        current_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+        if sucursal_post not in ['existencias_ac', 'existencias_su', 'existencias_sd', 'existencias_st']:
+            return jsonify({"status": "error", "message": "Sucursal no válida"}), 400
+        
+        with mysql.connection.cursor() as cur:
+            query_productos = (f"UPDATE `almacen_central` SET {sucursal_post} = %s "
+                                "WHERE `almacen_central`.`idProd` = %s "
+                                "AND identificadorProd = %s")
+            data_productos = (request.json['existencias_post'], request.json['idProd'], usuarioLlave)
+            cur.execute(query_productos, data_productos)
+            mysql.connection.commit()
+
+            query_entradas_update = ("UPDATE `entradas` SET `existencias_entradas` = %s, `existencias_devueltas` = %s "
+                                    "WHERE `entradas`.`idEntr` = %s "
+                                    "AND identificadorEntr = %s")
+            data_entradas_update = (request.json['existencias_entradas_update'], request.json['existencias_devueltas_update'], request.json['idEntr'], usuarioLlave)
+            cur.execute(query_entradas_update, data_entradas_update)
+            mysql.connection.commit()
+
+            query_entradas_insert = ("INSERT INTO `entradas` "
+                                    "(`idEntr`, `idProd`, `sucursal`, `existencias_entradas`, `comprobante`, `causa_devolucion`, `usuario`, `fecha`, `existencias_devueltas`, `identificadorEntr`) "
+                                    "VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
+            data_entradas_insert = (request.json['idProd'], request.json['sucursal'], 0, request.json['comprobante'], request.json['causa_devolucion'], 
+                            usuarioId, current_date, request.json['existencias_devueltas_insert'], usuarioLlave)
+            cur.execute(query_entradas_insert, data_entradas_insert)
+            mysql.connection.commit()
+        return jsonify({"status": "success", "message": "Catidades actualizadas correctamente."}), 200
+    except Exception as e:
+        mysql.connection.rollback()
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+@app.route('/api/procesar_recompra', methods=['POST'])##Compras
+@cross_origin()
+@login_required
+def operarDevolucionCompra():
+    try:
+        sucursal_post = request.json['sucursal_post']
+        usuarioLlave = session.get('usernameDos')
+        usuarioId = session.get('identificacion_usuario')
+        current_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+        if sucursal_post not in ['existencias_ac', 'existencias_su', 'existencias_sd', 'existencias_st']:
+            return jsonify({"status": "error", "message": "Sucursal no válida"}), 400
+        
+        with mysql.connection.cursor() as cur:
+            query_productos = (f"UPDATE `almacen_central` SET {sucursal_post} = %s "
+                            "WHERE `almacen_central`.`idProd` = %s "
+                            "AND identificadorProd = %s")
+            data_productos = (request.json['existencias_post'], request.json['idProd'], usuarioLlave)
+            cur.execute(query_productos, data_productos)
+            mysql.connection.commit()
+
+            query_entradas = ("INSERT INTO `entradas` "
+                            "(`idEntr`, `idProd`, `sucursal`, `existencias_entradas`, `comprobante`, `causa_devolucion`, `usuario`, `fecha`, `existencias_devueltas`, `identificadorEntr`) "
+                            "VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
+            data_entradas = (request.json['idProd'], request.json['sucursal'], request.json['existencias_entradas'], request.json['comprobante'], 0, 
+                            usuarioId, current_date, 0, usuarioLlave)
+            cur.execute(query_entradas, data_entradas)
+            mysql.connection.commit()
+        return jsonify({"status": "success", "message": "Catidades actualizadas correctamente."}), 200
+    except Exception as e:
+        mysql.connection.rollback()
+        return jsonify({"status": "error", "message": str(e)}), 500
 ##########################################################################################################################################################################
 # Datos de la tabla SALIDAS y base de datos salidas
 ##########################################################################################################################################################################
@@ -1285,7 +1401,7 @@ def getAllSalidasReporte():
                         "AND comprobante LIKE %s "
                         "AND fecha >= %s AND fecha < %s "
                         "ORDER BY sucursal ASC ")
-            data_params = (usuarioLlave, f"%{comprobante_salidas}%", fecha_inicio_salidas, fecha_fin_salidas + timedelta(days=1))
+            data_params = (usuarioLlave, f"{comprobante_salidas}%", fecha_inicio_salidas, fecha_fin_salidas + timedelta(days=1))
             cur.execute(query, data_params)
             data = cur.fetchall()
 
@@ -1803,7 +1919,7 @@ def getSalidasCodigoKardex(codigo):
                      "WHERE `identificadorSal` = %s "
                      "AND sucursal LIKE %s "
                      "AND codigo LIKE %s")
-            cur.execute(query, (usuarioLlave, f"{salidas_sucursal}%", f"%{codigo}%"))
+            cur.execute(query, (usuarioLlave, f"{salidas_sucursal}%", f"{codigo}%"))
             data = cur.fetchall()
         resultado = []
         for fila in data:
@@ -1834,7 +1950,7 @@ def getSalidasComprobante(comprobante):
                      "JOIN sucursales ON `salidas`.`sucursal` = `sucursales`.`id_sucursales` "
                      "WHERE `identificadorSal` = %s "
                      "AND comprobante LIKE %s")
-            cur.execute(query, (usuarioLlave, f"%{comprobante}%"))
+            cur.execute(query, (usuarioLlave, f"{comprobante}%"))
             data = cur.fetchall()
         resultado = []
         for fila in data:
@@ -1859,12 +1975,12 @@ def getSalidasComprobante(comprobante):
 @login_required
 def saveSalidas():
     if 'idSal' in request.json:
-        editSalildas()
+        editSalidas()
     else:
-        createSalildas()
+        createSalidas()
     return "ok"
 
-def createSalildas():
+def createSalidas():
     try:
         usuarioLlave = session.get('usernameDos')
         with mysql.connection.cursor() as cur:
@@ -1880,7 +1996,7 @@ def createSalildas():
         mysql.connection.rollback()
         return jsonify({"status": "error", "message": str(e)})
 
-def editSalildas():
+def editSalidas():
     try:
         usuarioLlave = session.get('usernameDos')
         with mysql.connection.cursor() as cur:
@@ -1907,6 +2023,79 @@ def removeSalidas(idSal):
         return "Salida eliminada." 
     except Exception as e:
         return jsonify({'error': str(e)}), 500  
+
+@app.route('/api/procesar_devolución_salidas', methods=['POST'])##Devolución salidas
+@cross_origin()
+@login_required
+def operarDevolucionSalidas():
+    try:
+        sucursal_post = request.json['sucursal_post']
+        usuarioLlave = session.get('usernameDos')
+        usuarioId = session.get('identificacion_usuario')
+        current_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+        if sucursal_post not in ['existencias_ac', 'existencias_su', 'existencias_sd', 'existencias_st']:
+            return jsonify({"status": "error", "message": "Sucursal no válida"}), 400
+        
+        with mysql.connection.cursor() as cur:
+            query_productos = (f"UPDATE `almacen_central` SET {sucursal_post} = %s "
+                                "WHERE `almacen_central`.`idProd` = %s "
+                                "AND identificadorProd = %s")
+            data_productos = (request.json['existencias_post'], request.json['idProd'], usuarioLlave)
+            cur.execute(query_productos, data_productos)
+            mysql.connection.commit()
+
+            query_salidas_update = ("UPDATE `salidas` SET `existencias_salidas` = %s, `precio_venta_salidas` = %s, `existencias_devueltas` = %s "
+                                    "WHERE `salidas`.`idSal` = %s "
+                                    "AND identificadorSal = %s")
+            data_salidas_update = (request.json['existencias_salidas_update'], request.json['precio_venta_salidas'], request.json['existencias_devueltas_update'], request.json['idSal'], usuarioLlave)
+            cur.execute(query_salidas_update, data_salidas_update)
+            mysql.connection.commit()
+
+            query_salidas_insert = ("INSERT INTO `salidas` "
+                                    "(`idSal`, `idProd`, `sucursal`, `existencias_salidas`, `precio_venta_salidas`,`comprobante`, `causa_devolucion`, `cliente`, `usuario`, `fecha`, `existencias_devueltas`, `identificadorSal`) "
+                                    "VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
+            data_salidas_insert = (request.json['idProd'], request.json['sucursal'], 0, request.json['precio_venta_salidas'], request.json['comprobante'], 
+                    request.json['causa_devolucion'], 1, usuarioId, current_date, request.json['existencias_devueltas_insert'], usuarioLlave)
+            cur.execute(query_salidas_insert, data_salidas_insert)
+            mysql.connection.commit()
+        return jsonify({"status": "success", "message": "Cantidades actualizadas correctamente."}), 200
+    except Exception as e:
+        mysql.connection.rollback()
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+@app.route('/api/procesar_venta', methods=['POST'])
+@cross_origin()
+@login_required
+def operarVenta():
+    try:
+        sucursal_post = request.json['sucursal_post']
+        usuarioLlave = session.get('usernameDos')
+        usuarioId = session.get('identificacion_usuario')
+        current_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+        if sucursal_post not in ['existencias_ac', 'existencias_su', 'existencias_sd', 'existencias_st']:
+            return jsonify({"status": "error", "message": "Sucursal no válida"}), 400
+        
+        with mysql.connection.cursor() as cur:
+            query_productos = (f"UPDATE `almacen_central` SET {sucursal_post} = %s "
+                     "WHERE `almacen_central`.`idProd` = %s "
+                     "AND identificadorProd = %s")
+            data_productos = (request.json['existencias_post'], request.json['idProd'], usuarioLlave)
+            cur.execute(query_productos, data_productos)
+            mysql.connection.commit()
+
+            query_salidas = ("INSERT INTO `salidas` "
+                     "(`idSal`, `idProd`, `sucursal`, `existencias_salidas`, `precio_venta_salidas`,`comprobante`, `causa_devolucion`, `cliente`, `usuario`, `fecha`, `existencias_devueltas`, `identificadorSal`) "
+                     "VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
+            data_salidas = (request.json['idProd'], request.json['sucursal'], request.json['existencias_salidas'], request.json['precio_venta_salidas'], request.json['comprobante'], 
+                    0, request.json['cliente'], usuarioId, current_date, 0, usuarioLlave)
+            cur.execute(query_salidas, data_salidas)
+            mysql.connection.commit()
+        return jsonify({"status": "success", "message": "Cantidades actualizadas correctamente."}), 200
+    except Exception as e:
+        mysql.connection.rollback()
+        return jsonify({"status": "error", "message": str(e)}), 500
 ##########################################################################################################################################################################
 # Datos de la tabla CATEGORÍAS
 ##########################################################################################################################################################################
@@ -2200,7 +2389,7 @@ def getAllVentasConteo():
                         "AND tipo_comprobante LIKE %s "
                         "AND nombre_cli LIKE %s "
                         "AND fecha_det_ventas >= %s AND fecha_det_ventas < %s ")
-            data_params = (usuarioLlave, f"{sucursal_det_venta}%", f"{comprobante_det_venta}%", f"{tipComp_det_venta}%", f"%{cliente_det_venta}%", 
+            data_params = (usuarioLlave, f"{sucursal_det_venta}%", f"{comprobante_det_venta}%", f"{tipComp_det_venta}%", f"{cliente_det_venta}%", 
                         fecha_inicio_det_venta, fecha_fin_det_venta + timedelta(days=1))
             cur.execute(query, data_params)
             data = cur.fetchone()[0]
@@ -2239,7 +2428,7 @@ def getAllVentas(numero):
                         "AND fecha_det_ventas >= %s AND fecha_det_ventas < %s "
                         "ORDER BY id_det_ventas ASC "
                         "LIMIT 20 OFFSET %s")
-            data_params = (usuarioLlave, f"{sucursal_det_venta}%", f"{comprobante_det_venta}%", f"{tipComp_det_venta}%", f"%{cliente_det_venta}%", 
+            data_params = (usuarioLlave, f"{sucursal_det_venta}%", f"{comprobante_det_venta}%", f"{tipComp_det_venta}%", f"{cliente_det_venta}%", 
                         fecha_inicio_det_venta, fecha_fin_det_venta + timedelta(days=1), numero)
             cur.execute(query, data_params)
             data = cur.fetchall()
@@ -2604,8 +2793,8 @@ def getAllUsuariosConteo():
                     "AND fecha >= %s AND fecha < %s"
                     "AND num_sucursales LIKE %s "
                     "AND num_usuarios LIKE %s")
-            data_params = (f"{id_usuarios}%", f"%{nombres_usuarios}%", f"%{apellidos_usuarios}%", f"%{dni_usuarios}%", 
-                            f"%{e_mail_usuarios}%", f"%{telefono_usuarios}%", f"{cargo_usuarios}%", f"{vinculacion_usuarios}%",
+            data_params = (f"{id_usuarios}%", f"{nombres_usuarios}%", f"{apellidos_usuarios}%", f"{dni_usuarios}%", 
+                            f"{e_mail_usuarios}%", f"{telefono_usuarios}%", f"{cargo_usuarios}%", f"{vinculacion_usuarios}%",
                             f"{clave_usuarios}%", fecha_inicio_usuarios, fecha_fin_usuarios + timedelta(days=1), f"{sucursales_usuarios}%", f"{usuarios_usuarios}%")
             cur.execute(query, data_params)
             data = cur.fetchone()[0]
@@ -2655,8 +2844,8 @@ def getAllUsuarios(numero):
                     "AND num_usuarios LIKE %s "
                     "ORDER BY id ASC "
                     "LIMIT 20 OFFSET %s")
-            data_params = (f"{id_usuarios}%", f"%{nombres_usuarios}%", f"%{apellidos_usuarios}%", f"%{dni_usuarios}%", 
-                            f"%{e_mail_usuarios}%", f"%{telefono_usuarios}%", f"{cargo_usuarios}%", f"{vinculacion_usuarios}%",
+            data_params = (f"{id_usuarios}%", f"{nombres_usuarios}%", f"{apellidos_usuarios}%", f"{dni_usuarios}%", 
+                            f"{e_mail_usuarios}%", f"{telefono_usuarios}%", f"{cargo_usuarios}%", f"{vinculacion_usuarios}%",
                             f"{clave_usuarios}%", fecha_inicio_usuarios, fecha_fin_usuarios + timedelta(days=1), f"{sucursales_usuarios}%", f"{usuarios_usuarios}%", numero)
             cur.execute(query, data_params)
             data = cur.fetchall()
@@ -2908,7 +3097,7 @@ def getAllGastosVariosConteo():
                         "AND comprobante LIKE %s "
                         "AND nombres LIKE %s "
                         "AND fecha_gastos >= %s AND fecha_gastos < %s ")
-            data_params = (usuarioLlave, f"{sucursal_gastos_varios}%", f"%{concepto_gastos_varios}%", f"%{comprobante_gastos_varios}%", f"%{usuario_gastos_varios}%", 
+            data_params = (usuarioLlave, f"{sucursal_gastos_varios}%", f"{concepto_gastos_varios}%", f"{comprobante_gastos_varios}%", f"{usuario_gastos_varios}%", 
                         fecha_inicio_gastos_varios, fecha_fin_gastos_varios + timedelta(days=1))
             cur.execute(query, data_params)
             data = cur.fetchone()[0]
@@ -2947,7 +3136,7 @@ def getAllGastosVarios(numero):
                         "AND fecha_gastos >= %s AND fecha_gastos < %s "
                         "ORDER BY id_gastos ASC "
                         "LIMIT 20 OFFSET %s")
-            data_params = (usuarioLlave, f"{sucursal_gastos_varios}%", f"%{concepto_gastos_varios}%", f"%{comprobante_gastos_varios}%", f"%{usuario_gastos_varios}%", 
+            data_params = (usuarioLlave, f"{sucursal_gastos_varios}%", f"{concepto_gastos_varios}%", f"{comprobante_gastos_varios}%", f"{usuario_gastos_varios}%", 
                         fecha_inicio_gastos_varios, fecha_fin_gastos_varios + timedelta(days=1), numero)
             cur.execute(query, data_params)
             data = cur.fetchall()

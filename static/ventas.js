@@ -218,7 +218,8 @@ function agregarATablaVentas(e){
         }
     });
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    if (document.getElementById('saldo-existencias-almacen-ventas').value >= 0 && 
+    if ((Number(document.getElementById("existencias-almacen-ventas").value) -
+    Number(document.getElementById("cantidad-vendida-ventas").value)) >= 0 && 
     document.getElementById('id-ventas').value != "" &&
     document.getElementById('cantidad-vendida-ventas').value > 0 && 
     Number(document.getElementById('precio-ventas').value) >= Number(document.getElementById('costo-unitario-ventas').value)){
@@ -261,7 +262,8 @@ function agregarATablaVentas(e){
         nuevaCeldaTablaVentas.textContent = document.getElementById("total-ventas").value
 
         nuevaCeldaTablaVentas = nuevaFilaTablaVentas.insertCell(9);//saldo de existencias en sucursal de origen
-        nuevaCeldaTablaVentas.textContent = document.getElementById("saldo-existencias-almacen-ventas").value
+        nuevaCeldaTablaVentas.textContent = Number(document.getElementById("existencias-almacen-ventas").value) -
+                                             Number(document.getElementById("cantidad-vendida-ventas").value)
         nuevaCeldaTablaVentas.classList.add("id-oculto")//OCULTO ESTA COLUMNA//////////
 
         nuevaCeldaTablaVentas = nuevaFilaTablaVentas.insertCell(10);//cliente
@@ -284,24 +286,27 @@ function agregarATablaVentas(e){
         document.getElementById("precio-ventas").value = ""
         document.getElementById("saldo-existencias-almacen-ventas").value = ""
         document.getElementById("total-ventas").value = ""
-        /* formularioMetodoDePago.reset(); */
+
         totalesTabla()
         document.getElementById("buscador-productos-ventas").focus()
 
-    }else if(document.getElementById('saldo-existencias-almacen-ventas').value < 0){//// BLOQUEA EL ENVIO A LA TABLA SI LA CANTIDAD COMPRADA ES MAYOR A LA CANTIDAD EN STOCK//////////
-        alert("Cantidad a vender mayor a existencias")
+    }else if((Number(document.getElementById("existencias-almacen-ventas").value) -
+    Number(document.getElementById("cantidad-vendida-ventas").value)) < 0){//// BLOQUEA EL ENVIO A LA TABLA SI LA CANTIDAD COMPRADA ES MAYOR A LA CANTIDAD EN STOCK//////////
+        alert("Cantidad a vender mayor a existencias.")
         document.getElementById('cantidad-vendida-ventas').value = ""
         document.getElementById('saldo-existencias-almacen-ventas').value = document.getElementById('existencias-almacen-ventas').value
         document.getElementById('saldo-existencias-almacen-ventas').style.background = ""
         document.getElementById('total-ventas').value = ""
         document.getElementById("cantidad-vendida-ventas").focus()
-    }else if(Number(document.getElementById('precio-ventas').value) < Number(document.getElementById('costo-unitario-ventas').value)){//// BLOQUEA EL ENVIO A LA TABLA SI LA CANTIDAD COMPRADA ES MAYOR A LA CANTIDAD EN STOCK//////////
-        alert("Precio de venta incorrecto")
+    }else if(Number(document.getElementById('precio-ventas').value) < Number(document.getElementById('costo-unitario-ventas').value)){//// BLOQUEA EL ENVIO A LA TABLA SI EL PRECIO DE VENTA ES MENOR AL COSTO DE COMPRA//////////
+        alert("Precio de venta incorrecto.")
         document.getElementById('precio-ventas').value = document.getElementById('precio-ventas-formulario').value
         document.getElementById('total-ventas').value = ""
         document.getElementById("precio-ventas").focus()
-    }else{
-        document.querySelector("#formulario-ventas").reset();
+    }else if(document.getElementById('cantidad-vendida-ventas').value == 0 || document.getElementById('cantidad-vendida-ventas').value == " "){
+        alert("Digite una cantidad a vender válida.")
+        document.getElementById("cantidad-vendida-ventas").focus()
+        /* document.querySelector("#formulario-ventas").reset(); */
     };
     
     
@@ -347,97 +352,73 @@ async function procesamientoVentas(e){
     e.preventDefault();
     try{
         await asegurarExistenciaStock();
-        if(document.getElementById("total-metodo-pago-ventas").value == 0 && document.querySelector("#tabla-ventas > tbody").rows.length > 0 &&
+        if(document.getElementById("total-metodo-pago-ventas").value == 0 && 
+        document.querySelector("#tabla-ventas > tbody").rows.length > 0 &&
         llave_comprobacion == 1){
+            modal_proceso_abrir("Procesando la venta!!!.", "")
             let obteniendo_numeracion = await cargarNumeracionComprobante();
             if(obteniendo_numeracion.status === 200){
-                await funcionVentaProductos()
+                await realizarVenta()
                 await NuevaVentanaComprobanteDePago()//comprobante
-
-                document.querySelector("#tabla-ventas > tbody").remove();
-                document.querySelector("#tabla-ventas").createTBody();
-                document.getElementById("total-importe-tabla-ventas").textContent = "";
-                document.getElementById("total-cantidad-tabla-ventas").textContent = "";
-                document.getElementById("contenedor-metodo-pago").reset();
                 formularioClientesVentas.reset();
-                document.getElementById("total-metodo-pago-ventas").style.background = ""
-                document.getElementById('txtIdv').value = ""
             }else{
-                alert("La conexión con el servidor no es buena.")
+                modal_proceso_abrir("La conexión con el servidor no es buena.", "")
+                modal_proceso_salir_botones()
             };
             
         }else if(document.querySelector("#tabla-ventas > tbody").rows.length == 0){
-            alert("Opere y coloque una cantidad a vender para un código de producto.")
+            modal_proceso_abrir("Imposible procesar venta, las lista está vacía.", "")
+            modal_proceso_salir_botones()
         }else{
             document.getElementById("total-metodo-pago-ventas").style.background = "#b36659"
-            alert("Monto de método de pago inadecuado, procure que el saldo sea cero")
+            modal_proceso_abrir("Monto de método de pago inadecuado, procure que el saldo sea cero.", "")
+            modal_proceso_salir_botones()
         };
     }catch(error){
-        alert("Ocurrió un error. " + error);
+        modal_proceso_abrir("Ocurrió un error. " + error, "");
         console.error("Ocurrió un error. ", error)
+        modal_proceso_salir_botones()
     };
     llave_comprobacion = 0;
 };
-
-async function funcionVentaProductos() {
+async function realizarVenta(){
     let suma_productos = 0;
-    function EnviarAProducto(a){
+    let array_lista_venta = [];
+    function DatosDeVenta(a){
         this.idProd = a.children[0].textContent;
         this.sucursal_post = sucursales_activas[indice_sucursal_ventas];
         this.existencias_post = a.children[9].textContent;
-    };
-    let cantidadDeFilas = document.querySelector("#tabla-ventas > tbody").rows.length;
-    for(let i = 0 ; i < cantidadDeFilas; i++ ){
-        if(document.querySelector("#tabla-ventas > tbody").children[i]){
-            let filaUno = new EnviarAProducto(document.querySelector("#tabla-ventas > tbody").children[i]);
-            let url = URL_API_almacen_central + 'almacen_central_operacion'
-            let response = await funcionFetch(url, filaUno);
-            console.log("Respuesta Productos "+response.status)
-            if(response.status === 200){
-                suma_productos +=1;
-            }
-        };
-    };
-    if(suma_productos === cantidadDeFilas){
-        await funcionVentaSalidas();
-    }else{
-        alert(`Ocurrió un problema en la fila ${suma_productos + 1}`)
-    };
-};
-async function funcionVentaSalidas(){
-    let suma_salidas = 0;
-    function EnviarASalidas(a){
-        this.idProd = a.children[0].textContent;
         if(document.getElementById('txtIdv').value != ""){
             this.cliente = document.getElementById('txtIdv').value;
         }else{
             this.cliente = indice_cli[0].id_cli;
         }
         this.comprobante = "Venta-" + (Number(numeracion[0].ventas) + 1);
-        this.causa_devolucion = 0;//####
-        this.fecha = fechaPrincipal;//####
         this.precio_venta_salidas = a.children[7].textContent;
         this.sucursal = a.children[1].textContent;
         this.existencias_salidas = a.children[6].textContent;
-        this.existencias_devueltas = 0;//####
-        this.usuario = document.getElementById("identificacion_usuario_id").textContent;//####
     };
-    let cantidadDeFilas = document.querySelector("#tabla-ventas > tbody").rows.length;
-    for(let i = 0 ; i < cantidadDeFilas; i++ ){
-        if(document.querySelector("#tabla-ventas > tbody").children[i]){
-            let ventaFilaUno = new EnviarASalidas(document.querySelector("#tabla-ventas > tbody").children[i]);
-            let urlSalidas = URL_API_almacen_central + 'salidas'
-            let response = await funcionFetch(urlSalidas, ventaFilaUno);
-            console.log("Respuesta Entradas "+response.status)
+    const numFilas = document.querySelector("#tabla-ventas > tbody").children
+    for(let i = 0 ; i < numFilas.length; i++ ){
+        if(numFilas[i]){
+            let filaVenta = new DatosDeVenta(numFilas[i]);
+            let url = URL_API_almacen_central + 'procesar_venta'
+            let response = await funcionFetch(url, filaVenta);
+            console.log(`Fila ${i+1}: ${response.status}`)
             if(response.status === 200){
-                suma_salidas +=1;
+                array_lista_venta.push(filaVenta)
+                suma_productos +=1;
+                modal_proceso_abrir("Procesando la venta!!!.", `Producto ejecutado: ${suma_productos} de ${numFilas.length}`)
+                console.log(`Producto ejecutado: ${suma_productos} de ${numFilas.length}`)
             }
         };
     };
-    if(suma_salidas === cantidadDeFilas){
+    if(suma_productos === numFilas.length){
         await funcionVentaNumeracion();
     }else{
-        alert(`Ocurrió un problema en la fila ${suma_salidas + 1}`)
+        modal_proceso_abrir(`Ocurrió un problema en la fila ${suma_productos + 1}.`, `Producto ejecutado: ${suma_productos} de ${numFilas.length}`)
+        console.log(`Producto ejecutado: ${suma_productos} de ${numFilas.length}`)
+        modal_proceso_salir_botones()
     };
 };
 async function funcionVentaNumeracion(){
@@ -535,8 +516,9 @@ inputRadioMetodoPago.forEach((radioVentas) =>{
 
             const operacionEfectivo = document.getElementById("efectivo-ventas");
             operacionEfectivo.addEventListener("keyup", (event) =>{
-                event.target.parentNode.parentNode.children[3].children[1].value = Number(document.getElementById("total-importe-tabla-ventas").textContent) - (Number(event.target.value) + Number(event.target.parentNode.parentNode.children[1].children[1].value) +
-                                                            Number(event.target.parentNode.parentNode.children[2].children[1].value ))
+                event.target.parentNode.parentNode.children[3].children[1].value = Number(document.getElementById("total-importe-tabla-ventas").textContent) - 
+                                                                                    (Number(event.target.value) + Number(event.target.parentNode.parentNode.children[1].children[1].value) +
+                                                                                    Number(event.target.parentNode.parentNode.children[2].children[1].value ))
                 if(document.getElementById("total-metodo-pago-ventas").value == 0){
                     document.getElementById("total-metodo-pago-ventas").style.background = "green"
                 }else{
@@ -545,8 +527,9 @@ inputRadioMetodoPago.forEach((radioVentas) =>{
             });
             const operacionTarjeta = document.getElementById("tarjeta-ventas");
             operacionTarjeta.addEventListener("keyup", (event) =>{
-                event.target.parentNode.parentNode.children[3].children[1].value = Number(document.getElementById("total-importe-tabla-ventas").textContent) - (Number(event.target.value) + Number(event.target.parentNode.parentNode.children[0].children[1].value) +
-                                                            Number(event.target.parentNode.parentNode.children[2].children[1].value))
+                event.target.parentNode.parentNode.children[3].children[1].value = Number(document.getElementById("total-importe-tabla-ventas").textContent) - 
+                                                                                    (Number(event.target.value) + Number(event.target.parentNode.parentNode.children[0].children[1].value) +
+                                                                                    Number(event.target.parentNode.parentNode.children[2].children[1].value))
                 if(document.getElementById("total-metodo-pago-ventas").value == 0){
                     document.getElementById("total-metodo-pago-ventas").style.background = "green"
                 }else{
@@ -555,8 +538,9 @@ inputRadioMetodoPago.forEach((radioVentas) =>{
             });
             const operacionCred = document.getElementById("credito-ventas");
             operacionCred.addEventListener("keyup", (event) =>{
-                event.target.parentNode.parentNode.children[3].children[1].value = Number(document.getElementById("total-importe-tabla-ventas").textContent) - (Number(event.target.value) + Number(event.target.parentNode.parentNode.children[0].children[1].value) +
-                                                            Number(event.target.parentNode.parentNode.children[1].children[1].value ))
+                event.target.parentNode.parentNode.children[3].children[1].value = Number(document.getElementById("total-importe-tabla-ventas").textContent) - 
+                                                                                    (Number(event.target.value) + Number(event.target.parentNode.parentNode.children[0].children[1].value) +
+                                                                                    Number(event.target.parentNode.parentNode.children[1].children[1].value ))
                 if(document.getElementById("total-metodo-pago-ventas").value == 0){
                     document.getElementById("total-metodo-pago-ventas").style.background = "green"
                 }else{
@@ -589,8 +573,10 @@ async function asegurarExistenciaStock(){
         });
         if(response.status === 200){
             stock_asegurado = await response.json();
-            if(filasTabla[i].children[6].textContent <= stock_asegurado.sucursal_get){
+            if(Number(filasTabla[i].children[6].textContent) <= stock_asegurado.sucursal_get){
                 suma_comprobacion +=1;
+                modal_proceso_abrir("Procesando la venta!!!.", `Stock asegurado: ${suma_comprobacion} de ${filasTabla.length}`)
+                console.log(`Stock asegurado: ${suma_comprobacion} de ${filasTabla.length}`)
             }else{
                 alert(`El código ${filasTabla[i].children[2].textContent} con descripción "${filasTabla[i].children[3].textContent }", 
                 no cuenta con stock suficiente. Actualice la página para conocer el nuevo stock.`)
@@ -606,9 +592,9 @@ async function asegurarExistenciaStock(){
 //////////////////////////////////GENERAR TICKET/////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////
 async function NuevaVentanaComprobanteDePago() {
-
-    respuesta_comprobante = confirm('Operación completada exitosamente. ¿Desea imprimir Comprobante de venta?')
-    if(respuesta_comprobante){
+    modal_proceso_abrir_botones()
+    modal_proceso_abrir('Operación completada exitosamente. ¿Desea imprimir comprobante de venta?')
+    document.getElementById("si_comprobante").addEventListener("click", async() =>{
         await cargarNumeracionDatos();
         let numeracion_comprobante_venta = "";
         let importe_venta = 0;
@@ -761,7 +747,15 @@ async function NuevaVentanaComprobanteDePago() {
         // Abrir una nueva ventana o pestaña con el contenido HTML generado
         let nuevaVentana = window.open('');
         nuevaVentana.document.write(contenidoHTML);
-    };
+        modal_proceso_cerrar_botones()
+        modal_proceso_cerrar()
+        reiniciandoVentas()
+    });
+    document.getElementById("no_salir").addEventListener("click", () =>{
+        modal_proceso_cerrar_botones()
+        modal_proceso_cerrar()
+        reiniciandoVentas()
+    })
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -772,11 +766,7 @@ function cambioSucursal(){
             respuestaVenta = confirm('Hay datos en cola en la lista de productos, si cambia de sucursal se borrarán los datos, ¿Desea continuar?')
             if(respuestaVenta){
                 document.getElementById("formulario-ventas").reset();
-                document.querySelector("#tabla-ventas > tbody").remove();
-                document.querySelector("#tabla-ventas").createTBody();
-                document.getElementById("total-importe-tabla-ventas").textContent = "";
-                document.getElementById("total-cantidad-tabla-ventas").textContent = "";
-                document.getElementById("contenedor-metodo-pago").reset();
+                reiniciandoVentas()
             };
 
         }else{
@@ -899,6 +889,15 @@ async function conteoCliente(){
     }
 };
 //////////////////////////////////////////////////////////////
+function reiniciandoVentas(){
+    document.querySelector("#tabla-ventas > tbody").remove();
+    document.querySelector("#tabla-ventas").createTBody();
+    document.getElementById("total-importe-tabla-ventas").textContent = "";
+    document.getElementById("total-cantidad-tabla-ventas").textContent = "";
+    document.getElementById("contenedor-metodo-pago").reset();
+    document.getElementById("total-metodo-pago-ventas").style.background = ""
+    document.getElementById('txtIdv').value = ""
+}
 /* function cambioSucursal(){
     document.getElementById("sucursal-principal").addEventListener("change", ()=>{
         document.getElementById("formulario-ventas").reset();

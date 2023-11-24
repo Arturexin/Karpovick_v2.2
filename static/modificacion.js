@@ -305,11 +305,13 @@ async function procesamientoRegistros(e){
     e.preventDefault();
     try{
         if(document.querySelector("#tabla-proforma-modificacion > tbody").children.length > 0){
+            modal_proceso_abrir("Procesando el traspaso!!!.", "")
             await funcionRegistrosProductos();
         };
     }catch(error){
-        alert("Ocurrió un error. " + error);
+        modal_proceso_abrir("Ocurrió un error. " + error, "")
         console.error("Ocurrió un error. ", error)
+        modal_proceso_salir_botones()
     };
 };
 async function funcionRegistrosProductos(){
@@ -336,22 +338,26 @@ async function funcionRegistrosProductos(){
         this.existencias_sd = array[2];
         this.existencias_st = array[3];
     };
-    let cantidadDeFilasRegistro = document.querySelector("#tabla-proforma-modificacion > tbody").rows.length;
-    for(let i = 0 ; i < cantidadDeFilasRegistro; i++ ){
-        if(document.querySelector("#tabla-proforma-modificacion > tbody").children[i]){
-            let filaRegistro = new EnviarRegistroAProductos(document.querySelector("#tabla-proforma-modificacion > tbody").children[i]);
+    let numFilas = document.querySelector("#tabla-proforma-modificacion > tbody").children;
+    for(let i = 0 ; i < numFilas.length; i++ ){
+        if(numFilas[i]){
+            let filaRegistro = new EnviarRegistroAProductos(numFilas[i]);
             let url = URL_API_almacen_central + 'almacen_central'
             let response = await funcionFetch(url, filaRegistro)
             console.log("Respuesta Productos "+response.status)
             if(response.status === 200){
                 suma_productos +=1;
+                modal_proceso_abrir("Procesando el traspaso!!!.", `Producto ejecutado: ${suma_productos} de ${numFilas.length}`)
+                console.log(`Producto ejecutado: ${suma_productos} de ${numFilas.length}`)
             }
         };
     };
-    if(suma_productos === cantidadDeFilasRegistro){
+    if(suma_productos === numFilas.length){
         await encontrarIdProductosRegistro();
     }else{
-        alert(`Ocurrió un problema en la fila ${suma_productos + 1}`)
+        modal_proceso_abrir(`Ocurrió un problema en la fila ${suma_productos + 1}`, `Producto ejecutado: ${suma_productos} de ${numFilas.length}`)
+        console.log(`Producto ejecutado: ${suma_productos} de ${numFilas.length}`)
+        modal_proceso_salir_botones()
     };
 };
 async function encontrarIdProductosRegistro(){//busca el id del nuevo producto el almacén central para grabar la compra en entradas
@@ -372,12 +378,16 @@ async function encontrarIdProductosRegistro(){//busca el id del nuevo producto e
             codigoNuevo = await respuesta.json();
             cod.parentNode.children[12].textContent = codigoNuevo.idProd
             suma_id_productos +=1;
+            modal_proceso_abrir("Procesando el traspaso!!!.", `Buscando nuevos códigos: ${suma_id_productos} de ${codigoComparador.length}`)
+            console.log(`Buscando nuevos códigos: ${suma_id_productos} de ${codigoComparador.length}`)
         };
     };
     if(suma_id_productos === codigoComparador.length){
         await funcionRegistrosEntradas();
     }else{
-        alert(`Ocurrió un problema en la fila ${suma_id_productos + 1}`)
+        modal_proceso_abrir(`Ocurrió un problema en la fila ${suma_id_productos + 1}`, `Buscando nuevos códigos: ${suma_id_productos} de ${codigoComparador.length}`)
+        console.log(`Buscando nuevos códigos: ${suma_id_productos} de ${codigoComparador.length}`)
+        modal_proceso_salir_botones()
     };
 };
 async function funcionRegistrosEntradas(){
@@ -392,33 +402,38 @@ async function funcionRegistrosEntradas(){
         this.usuario = document.getElementById("identificacion_usuario_id").textContent;
         this.existencias_devueltas = 0;
     };
-    let cantidadDeFilas = document.querySelector("#tabla-proforma-modificacion > tbody").rows.length;
-    for(let i = 0 ; i < cantidadDeFilas; i++ ){
-        if(Number(document.querySelector("#tabla-proforma-modificacion > tbody").children[i].children[12].textContent) > 0 &&
-        Number(document.querySelector("#tabla-proforma-modificacion > tbody").children[i].children[6].textContent) > 0){
-            let filaUnoEntradas = new EnviarAEntradas(document.querySelector("#tabla-proforma-modificacion > tbody").children[i]);
+    let numFilas = document.querySelector("#tabla-proforma-modificacion > tbody").children;
+    for(let i = 0 ; i < numFilas.length; i++ ){
+        if(Number(numFilas[i].children[12].textContent) > 0 &&
+        Number(numFilas[i].children[6].textContent) > 0){
+            let filaUnoEntradas = new EnviarAEntradas(numFilas[i]);
             let urlCompraEntradas = URL_API_almacen_central + 'entradas'
             let response = await funcionFetch(urlCompraEntradas, filaUnoEntradas)
             console.log("Respuesta Entradas "+response.status)
             if(response.status === 200){
                 suma_entradas +=1;
+                modal_proceso_abrir("Procesando el traspaso!!!.", `Producto ejecutado en entradas: ${suma_entradas} de ${numFilas.length}`)
+                console.log(`Producto ejecutado en entradas: ${suma_entradas} de ${numFilas.length}`)
             }
         };
     };
-    if(suma_entradas === cantidadDeFilas){
-        alert("Operación completada exitosamente. (Entradas: Traspaso)")
+    if(suma_entradas === numFilas.length){
+        modal_proceso_abrir("Operación completada exitosamente. (Entradas: Traspaso)", "")
+        modal_proceso_salir_botones()
         document.querySelector("#tabla-proforma-modificacion  > tbody").remove();
         document.querySelector("#tabla-proforma-modificacion ").createTBody();
         await cargarDatosProductosCCD();
         localStorage.setItem("base_datos_consulta", JSON.stringify(productosCCD))
     }else if(suma_entradas == 0){
-        alert("Operación completada exitosamente.")
+        modal_proceso_abrir("Operación completada exitosamente.", "")
+        modal_proceso_salir_botones()
         document.querySelector("#tabla-proforma-modificacion  > tbody").remove();
         document.querySelector("#tabla-proforma-modificacion ").createTBody();
         await cargarDatosProductosCCD();
         localStorage.setItem("base_datos_consulta", JSON.stringify(productosCCD))
     }else{
-        alert(`Ocurrió un problema en la fila ${suma_entradas + 1}`)
+        modal_proceso_abrir(`Ocurrió un problema en la fila ${suma_entradas + 1}`, "")
+        modal_proceso_salir_botones()
     };
     
 };
@@ -679,6 +694,7 @@ async function mandarModificacionAProductos(e){
     e.preventDefault();
     let suma_productos = 0;
     if(document.querySelector("#tabla-proforma-modificacion > tbody").children.length > 0){
+        modal_proceso_abrir("Procesando la modificación!!!.", "")
         function EnviarAProducto(a){
             this.idProd = a.children[0].textContent;
             this.categoria = a.children[16].textContent;
@@ -692,24 +708,29 @@ async function mandarModificacionAProductos(e){
             this.sucursal_post = sucursales_activas[a.children[14].textContent];
             this.existencias_post = a.children[6].textContent;
         };
-        let cantidadDeFilas = document.querySelector("#tabla-proforma-modificacion > tbody").rows.length;
-        for(let i = 0 ; i < cantidadDeFilas; i++ ){
-            let editProducto = new EnviarAProducto(document.querySelector("#tabla-proforma-modificacion > tbody").children[i]);
+        let numFilas = document.querySelector("#tabla-proforma-modificacion > tbody").children;
+        for(let i = 0 ; i < numFilas.length; i++ ){
+            let editProducto = new EnviarAProducto(numFilas[i]);
             let url = URL_API_almacen_central + 'almacen_central';
             let response = await funcionFetch(url, editProducto);
             console.log("Respuesta Productos "+response.status)
             if(response.status === 200){
                 suma_productos +=1;
+                modal_proceso_abrir("Procesando la modificación!!!.", `Producto ejecutado: ${suma_productos} de ${numFilas.length}`)
+                console.log(`Producto ejecutado: ${suma_productos} de ${numFilas.length}`)
             }
         };
-        if(suma_productos === cantidadDeFilas){
-            alert("Modificación exitosa.")
+        if(suma_productos === numFilas.length){
+            modal_proceso_abrir('Operación completada exitosamente.', "")
+            modal_proceso_salir_botones()
             document.querySelector("#tabla-proforma-modificacion > tbody").remove();
             document.querySelector("#tabla-proforma-modificacion").createTBody();
             await cargarDatosProductosCCD();
             localStorage.setItem("base_datos_consulta", JSON.stringify(productosCCD))
         }else{
-            alert(`Ocurrió un problema en la fila ${suma_productos + 1}`)
+            modal_proceso_abrir(`Ocurrió un problema en la fila ${suma_productos + 1}`, `Producto ejecutado: ${suma_productos} de ${numFilas.length}`)
+            console.log(`Producto ejecutado: ${suma_productos} de ${numFilas.length}`)
+            modal_proceso_salir_botones()
         };
     };
 };

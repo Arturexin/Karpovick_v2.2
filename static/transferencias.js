@@ -319,108 +319,56 @@ async function procesamientoTransferencias(e){
     e.preventDefault();
     try{
         if(document.querySelector("#tabla-proforma-transferencias > tbody").children.length > 0){
+            modal_proceso_abrir("Procesando la transferencia!!!.", "")
             let obteniendo_numeracion = await cargarNumeracionComprobante();
             if(obteniendo_numeracion.status === 200){
-                await funcionTransferenciasProductos()
+                await realizarTransferencia()
                 document.querySelector("#tabla-proforma-transferencias > tbody").remove();
                 document.querySelector("#tabla-proforma-transferencias").createTBody();
             }else{
-                alert("La conexión con el servidor no es buena.")
+                modal_proceso_abrir("La conexión con el servidor no es buena.", "")
+                modal_proceso_salir_botones()
             };
         }
-        
     }catch(error){
-        alert("Ocurrió un error. " + error);
+        modal_proceso_abrir("Ocurrió un error. ", error, "")
         console.error("Ocurrió un error. ", error)
+        modal_proceso_salir_botones()
     };
 };
-async function funcionTransferenciasProductos(){
+async function realizarTransferencia(){
     let suma_productos = 0;
-    function EnviarAProductosEditarExistente(a){
+    function DatosDeTransferencia(a){
         this.idProd = a.children[0].textContent;
         this.sucursal_post = sucursales_activas[a.children[12].textContent]
         this.existencias_post = a.children[6].textContent;
         this.sucursal_post_dos = sucursales_activas[a.children[14].textContent]
         this.existencias_post_dos = a.children[10].textContent;
-    };
-    let cantidadDeFilas = document.querySelector("#tabla-proforma-transferencias > tbody").rows.length;
-    for(let i = 0 ; i < cantidadDeFilas; i++ ){
-        if(document.querySelector("#tabla-proforma-transferencias > tbody").children[i]){
-            let filaUno = new EnviarAProductosEditarExistente(document.querySelector("#tabla-proforma-transferencias > tbody").children[i]);
-            let urlTransferenciasProductoUno = URL_API_almacen_central + 'almacen_central_doble_operacion'
-            let response = await funcionFetch(urlTransferenciasProductoUno, filaUno)
+        this.comprobante = "Transferencia-" + (Number(numeracion[0].transferencias) + 1);
+        this.existencias = a.children[7].textContent;
+        this.sucursal_salidas = a.children[11].textContent
+        this.sucursal_entradas = a.children[13].textContent
+    }
+    const numFilas = document.querySelector("#tabla-proforma-transferencias > tbody").children
+    for(let i = 0 ; i < numFilas.length; i++ ){
+        if(numFilas[i]){
+            let filaUno = new DatosDeTransferencia(numFilas[i]);
+            let filaTransferencia = URL_API_almacen_central + 'procesar_transferencia'
+            let response = await funcionFetch(filaTransferencia, filaUno)
             console.log("Respuesta Productos "+response.status)
             if(response.status === 200){
                 suma_productos +=1;
+                modal_proceso_abrir("Procesando la transferencia!!!.", `Producto ejecutado: ${suma_productos} de ${numFilas.length}`)
+                console.log(`Producto ejecutado: ${suma_productos} de ${numFilas.length}`)
             }
         };
     };
-    if(suma_productos === cantidadDeFilas){
-        await funcionTransferenciasSalidas();
-    }else{
-        alert(`Ocurrió un problema en la fila ${suma_productos + 1}`)
-    };
-};
-async function funcionTransferenciasSalidas(){
-    let suma_salidas = 0;
-    function EnviarASalidas(a){
-        this.idProd = a.children[0].textContent;
-        this.cliente = 1;
-        this.comprobante = "Transferencia-" + (Number(numeracion[0].transferencias) + 1);
-        this.causa_devolucion = 0;
-        this.fecha = fechaPrincipal;
-        this.precio_venta_salidas = 0;
-        this.sucursal = a.children[11].textContent;
-        this.existencias_salidas = a.children[7].textContent;
-        this.existencias_devueltas = 0;
-        this.usuario = document.getElementById("identificacion_usuario_id").textContent;
-    };
-    let cantidadDeFilas = document.querySelector("#tabla-proforma-transferencias > tbody").rows.length;
-    for(let i = 0 ; i < cantidadDeFilas; i++ ){
-        if(document.querySelector("#tabla-proforma-transferencias > tbody").children[i]){
-            let filaSalidas = new EnviarASalidas( document.querySelector("#tabla-proforma-transferencias > tbody").children[i]);
-            let urlTransferenciasSalidas = URL_API_almacen_central + 'salidas'
-            let response = await funcionFetch(urlTransferenciasSalidas, filaSalidas)
-            console.log("Respuesta Salidas "+response.status)
-            if(response.status === 200){
-                suma_salidas +=1;
-            }
-        };
-    };
-    if(suma_salidas === cantidadDeFilas){
-        await funcionTransferenciasEntradas();
-    }else{
-        alert(`Ocurrió un problema en la fila ${suma_salidas + 1}`)
-    };
-};
-async function funcionTransferenciasEntradas(){
-    let suma_entradas = 0;
-    function EnviarAEntradasT(a){
-        this.idProd = a.children[0].textContent
-        this.comprobante = "Transferencia-" + (Number(numeracion[0].transferencias) + 1);
-        this.causa_devolucion = 0;
-        this.fecha = fechaPrincipal;
-        this.existencias_entradas = a.children[7].textContent;
-        this.sucursal = a.children[13].textContent;
-        this.usuario = document.getElementById("identificacion_usuario_id").textContent;
-        this.existencias_devueltas = 0;
-    };
-    let cantidadDeFilas = document.querySelector("#tabla-proforma-transferencias > tbody").rows.length;
-    for(let i = 0 ; i < cantidadDeFilas; i++ ){
-        if(document.querySelector("#tabla-proforma-transferencias > tbody").children[i]){
-            let filaEntradas = new EnviarAEntradasT( document.querySelector("#tabla-proforma-transferencias > tbody").children[i]);
-            let urlTransferenciasEntradas = URL_API_almacen_central + 'entradas'
-            let response = await funcionFetch(urlTransferenciasEntradas, filaEntradas)
-            console.log("Respuesta Entradas "+response.status)
-            if(response.status === 200){
-                suma_entradas +=1;
-            }
-        };
-    };
-    if(suma_entradas === cantidadDeFilas){
+    if(suma_productos === numFilas.length){
         await funcionTransferenciasNumeracion();
     }else{
-        alert(`Ocurrió un problema en la fila ${suma_entradas + 1}`)
+        modal_proceso_abrir(`Ocurrió un problema en la fila ${suma_productos + 1}`, `Producto ejecutado: ${suma_productos} de ${numFilas.length}`)
+        console.log(`Producto ejecutado: ${suma_productos} de ${numFilas.length}`)
+        modal_proceso_salir_botones()
     };
 };
 async function funcionTransferenciasNumeracion(){
@@ -438,7 +386,8 @@ async function funcionTransferenciasNumeracion(){
     let response = await funcionFetch(urlTranferenciasComprobante, dataComprobante)
     console.log("Respuesta Numeración "+response.status)
     if(response.status === 200){
-        alert("Operación completada exitosamente.")
+        modal_proceso_abrir('Operación completada exitosamente.')
+        modal_proceso_salir_botones()
     };
 };
 ////BOTONES PARA ELIMINAR CONTENIDO DE TABLAS////////////////////////////////////////////////////////////////////////

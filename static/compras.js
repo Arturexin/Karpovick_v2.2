@@ -348,18 +348,21 @@ async function procesamientoCompras(e){
     e.preventDefault();
     try{
         if(document.querySelector("#tabla_principal > tbody").children.length > 0){
+            modal_proceso_abrir("Procesando la compra!!!.", "")
             let obteniendo_numeracion = await cargarNumeracionComprobante();
             if(obteniendo_numeracion.status === 200){
                 await funcionComprasProductos()
                 document.querySelector("#tabla_principal > tbody").remove();
                 document.querySelector("#tabla_principal").createTBody();
             }else{
-                alert("La conexión con el servidor no es buena.")
+                modal_proceso_abrir("La conexión con el servidor no es buena.", "")
+                modal_proceso_salir_botones()
             };
         };
     }catch(error){
-        alert("Ocurrió un error. " + error);
+        modal_proceso_abrir("Ocurrió un error. " + error, "")
         console.error("Ocurrió un error. ", error)
+        modal_proceso_salir_botones()
     };
 };
 async function funcionComprasProductos(){
@@ -386,22 +389,26 @@ async function funcionComprasProductos(){
         this.existencias_sd = array[2];
         this.existencias_st = array[3];
     };
-    let cantidadDeFilas = document.querySelector("#tabla_principal > tbody").rows.length;
-    for(let i = 0 ; i < cantidadDeFilas; i++ ){
-        if(document.querySelector("#tabla_principal > tbody").children[i]){
-            let filaUno = new EnviarAProductos(document.querySelector("#tabla_principal > tbody").children[i]);
+    let numFilas = document.querySelector("#tabla_principal > tbody").children;
+    for(let i = 0 ; i < numFilas.length; i++ ){
+        if(numFilas[i]){
+            let filaUno = new EnviarAProductos(numFilas[i]);
             let urlCompraProductos = URL_API_almacen_central + 'almacen_central'
             let response = await funcionFetch(urlCompraProductos, filaUno)
             console.log("Respuesta Productos "+response.status)
             if(response.status === 200){
                 suma_productos +=1;
+                modal_proceso_abrir("Procesando la compra!!!.", `Producto ejecutado: ${suma_productos} de ${numFilas.length}`)
+                console.log(`Producto ejecutado: ${suma_productos} de ${numFilas.length}`)
             }
         };
     };
-    if(suma_productos === cantidadDeFilas){
+    if(suma_productos === numFilas.length){
         await encontrarIdProductosNuevos();
     }else{
-        alert(`Ocurrió un problema en la fila ${suma_productos + 1}`)
+        modal_proceso_abrir(`Ocurrió un problema en la fila ${suma_productos + 1}`, `Producto ejecutado: ${suma_productos} de ${numFilas.length}`)
+        console.log(`Producto ejecutado: ${suma_productos} de ${numFilas.length}`)
+        modal_proceso_salir_botones()
     };
 };
 
@@ -423,12 +430,16 @@ async function encontrarIdProductosNuevos(){//busca el id del nuevo producto el 
             codigoNuevo = await respuesta.json();
             cod.parentNode.children[12].textContent = codigoNuevo.idProd
             suma_id_productos +=1;
+            modal_proceso_abrir("Procesando la compra!!!.", `Buscando nuevos códigos: ${suma_id_productos} de ${codigoComparador.length}`)
+            console.log(`Buscando nuevos códigos: ${suma_id_productos} de ${codigoComparador.length}`)
         };
     };
     if(suma_id_productos === codigoComparador.length){
         await funcionComprasEntradas();
     }else{
-        alert(`Ocurrió un problema en la fila ${suma_id_productos + 1}`)
+        modal_proceso_abrir(`Ocurrió un problema en la fila ${suma_id_productos + 1}`, `Buscando nuevos códigos: ${suma_id_productos} de ${codigoComparador.length}`)
+        console.log(`Buscando nuevos códigos: ${suma_id_productos} de ${codigoComparador.length}`)
+        modal_proceso_salir_botones()
     };
 };
 async function funcionComprasEntradas(){
@@ -443,22 +454,26 @@ async function funcionComprasEntradas(){
         this.usuario = document.getElementById("identificacion_usuario_id").textContent;
         this.existencias_devueltas = 0;
     };
-    let cantidadDeFilas = document.querySelector("#tabla_principal > tbody").rows.length;
-    for(let i = 0 ; i < cantidadDeFilas; i++ ){
-        if(Number(document.querySelector("#tabla_principal > tbody").children[i].children[12].textContent) > 0){
-            let filaUnoEntradas = new EnviarAEntradas(document.querySelector("#tabla_principal > tbody").children[i]);
+    let numFilas = document.querySelector("#tabla_principal > tbody").children;
+    for(let i = 0 ; i < numFilas.length; i++ ){
+        if(Number(numFilas[i].children[12].textContent) > 0){
+            let filaUnoEntradas = new EnviarAEntradas(numFilas[i]);
             let urlCompraEntradas = URL_API_almacen_central + 'entradas'
             let response = await funcionFetch(urlCompraEntradas, filaUnoEntradas)
             console.log("Respuesta Entradas "+response.status)
             if(response.status === 200){
                 suma_entradas +=1;
+                modal_proceso_abrir("Procesando la compra!!!.", `Producto ejecutado en entradas: ${suma_entradas} de ${numFilas.length}`)
+                console.log(`Producto ejecutado en entradas: ${suma_entradas} de ${numFilas.length}`)
             }
         };
     };
-    if(suma_entradas === cantidadDeFilas){
+    if(suma_entradas === numFilas.length){
         await funcionComprasNumeracion();
     }else{
-        alert(`Ocurrió un problema en la fila ${suma_entradas + 1}`)
+        modal_proceso_abrir(`Ocurrió un problema en la fila ${suma_entradas + 1}`, `Producto ejecutado en entradas: ${suma_entradas} de ${numFilas.length}`)
+        console.log(`Producto ejecutado en entradas: ${suma_entradas} de ${numFilas.length}`)
+        modal_proceso_salir_botones()
     };
 };
 
@@ -479,7 +494,8 @@ async function funcionComprasNumeracion(){
     if(response.status === 200){
         await cargarDatosProductosCCD();
         localStorage.setItem("base_datos_consulta", JSON.stringify(productosCCD))
-        alert("Operación completada exitosamente.")
+        modal_proceso_abrir('Operación completada exitosamente.', "")
+        modal_proceso_salir_botones()
     };
 };
 
@@ -756,74 +772,56 @@ async function procesamientoRecompras(e){
     e.preventDefault();
     try{
         if(document.querySelector("#tabla_principal > tbody").children.length > 0){
+            modal_proceso_abrir("Procesando la recompra!!!.", "")
             let obteniendo_numeracion = await cargarNumeracionComprobante();
             if(obteniendo_numeracion.status === 200){
-                await funcionRecomprasProductos()
+                await realizarRecompra()
                 document.querySelector("#tabla_principal > tbody").remove();
                 document.querySelector("#tabla_principal").createTBody();
             }else{
-                alert("La conexión con el servidor no es buena.")
+                modal_proceso_abrir("La conexión con el servidor no es buena.", "")
+                modal_proceso_salir_botones()
             };
         };
     }catch(error){
-        alert("Ocurrió un error. " + error);
+        modal_proceso_abrir("Ocurrió un error. " + error, "")
         console.error("Ocurrió un error. ", error)
+        modal_proceso_salir_botones()
     };
 };
-async function funcionRecomprasProductos(){
+async function realizarRecompra(){
     let suma_productos = 0;
-    function EnviarAProductosPlus(a){
+    let array_lista_recompra = [];
+    function DatosDeRecompra(a){
         this.idProd = a.children[0].textContent;
         this.sucursal_post = sucursales_activas[a.children[14].textContent];
         this.existencias_post = a.children[12].textContent;
-    };
-    let cantidadDeFilas = document.querySelector("#tabla_principal > tbody").rows.length;
-    for(let i = 0 ; i < cantidadDeFilas; i++ ){
-        if(document.querySelector("#tabla_principal > tbody").children[i]){
-            let filaPlus = new EnviarAProductosPlus(document.querySelector("#tabla_principal > tbody").children[i]);
-            let urlRecompraProducto = URL_API_almacen_central + 'almacen_central_operacion'
-            let response = await funcionFetch(urlRecompraProducto, filaPlus)
-            console.log("Respuesta Productos "+response.status)
-            if(response.status === 200){
-                suma_productos +=1;
-            }
-        };
-    };
-    if(suma_productos === cantidadDeFilas){
-        await funcionRecomprasEntradas();
-    }else{
-        alert(`Ocurrió un problema en la fila ${suma_productos + 1}`)
-    };
-};
 
-async function funcionRecomprasEntradas(){
-    let suma_entradas = 0;
-    function EnviarAEntradasPlus(a){
-        this.idProd = a.children[0].textContent;
         this.comprobante = "Recompra-" + (Number(numeracion[0].recompras) + 1);
-        this.causa_devolucion = 0;
-        this.fecha = fechaPrincipal;
         this.existencias_entradas = a.children[6].textContent;
         this.sucursal = a.children[13].textContent;
-        this.usuario = document.getElementById("identificacion_usuario_id").textContent;
-        this.existencias_devueltas = 0;
     };
-    let cantidadDeFilas = document.querySelector("#tabla_principal > tbody").rows.length;
-    for(let i = 0 ; i < cantidadDeFilas; i++ ){
-        if(document.querySelector("#tabla_principal > tbody").children[i]){
-            let filaUnoEntradas = new EnviarAEntradasPlus(document.querySelector("#tabla_principal > tbody").children[i]);
-            let urlRecompraEntradas = URL_API_almacen_central + 'entradas'
-            let response = await funcionFetch(urlRecompraEntradas, filaUnoEntradas)
-            console.log("Respuesta Entradas "+response.status)
+    const numFilas = document.querySelector("#tabla_principal > tbody").children
+    for(let i = 0 ; i < numFilas.length; i++ ){
+        if(numFilas[i]){
+            let filaPlus = new DatosDeRecompra(numFilas[i]);
+            let urlRecompraProducto = URL_API_almacen_central + 'procesar_recompra'
+            let response = await funcionFetch(urlRecompraProducto, filaPlus)
+            console.log(`Fila ${i+1}: ${response.status}`)
             if(response.status === 200){
-                suma_entradas +=1;
+                array_lista_recompra.push(filaPlus)
+                suma_productos +=1;
+                modal_proceso_abrir("Procesando la recompra!!!.", `Producto ejecutado: ${suma_productos} de ${numFilas.length}`)
+                console.log(`Producto ejecutado: ${suma_productos} de ${numFilas.length}`)
             }
         };
     };
-    if(suma_entradas === cantidadDeFilas){
+    if(suma_productos === numFilas.length){
         await funcionRecomprasNumeracion();
     }else{
-        alert(`Ocurrió un problema en la fila ${suma_entradas + 1}`)
+        modal_proceso_abrir(`Ocurrió un problema en la fila ${suma_productos + 1}`, `Producto ejecutado: ${suma_productos} de ${numFilas.length}`)
+        console.log(`Producto ejecutado: ${suma_productos} de ${numFilas.length}`)
+        modal_proceso_salir_botones()
     };
 };
 async function funcionRecomprasNumeracion(){
@@ -841,7 +839,8 @@ async function funcionRecomprasNumeracion(){
     let response = await funcionFetch(urlRecompraComprobante, dataComprobante)
     console.log("Respuesta Numeración "+response.status)
     if(response.status === 200){
-        alert("Operación completada exitosamente.")
+        modal_proceso_abrir('Operación completada exitosamente.', "")
+        modal_proceso_salir_botones()
     };
 };
 const removerTablaComprasUno = document.getElementById("remover-tabla-compras-uno");

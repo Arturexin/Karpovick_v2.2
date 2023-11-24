@@ -194,95 +194,51 @@ async function procesamientoDevolucionSalidas(e){
     e.preventDefault();
     try{
         if(document.querySelector("#tabla-devolucion-salidas-final > tbody").children.length > 0){
-            await funcionDevolucionSalidasProductos()
+            modal_proceso_abrir("Procesando la devolución de la venta!!!.", "")
+            await realizarDevolucionSalidas()
         };
     }catch(error){
-        alert("Ocurrió un error. " + error);
+        modal_proceso_abrir("Ocurrió un error. " + error, "")
         console.error("Ocurrió un error. ", error)
+        modal_proceso_salir_botones()
     };
 };
-async function funcionDevolucionSalidasProductos(){
+async function realizarDevolucionSalidas(){
     let suma_productos = 0;
-    function EnviarDevolucionAProductos(a){
+    function DatosDeDevolucionSalidas(a){
         this.idProd = a.children[9].textContent;
         this.sucursal_post = sucursales_activas[a.children[16].textContent];
         this.existencias_post = a.children[11].textContent;
-    };
-    let cantidadDeFilas = document.querySelector("#tabla-devolucion-salidas-final > tbody").rows.length;
-    for(let i = 0 ; i < cantidadDeFilas; i++){
-        if(document.querySelector("#tabla-devolucion-salidas-final > tbody").children[i]){
-            let filaPlus = new EnviarDevolucionAProductos(document.querySelector("#tabla-devolucion-salidas-final > tbody").children[i]);
-            console.log(filaPlus)
-            let urlDevolucionProductos = URL_API_almacen_central + 'almacen_central_operacion'
+
+        this.idSal = a.children[0].textContent;
+        this.existencias_salidas_update = a.children[3].textContent;
+        this.existencias_devueltas_update = a.children[13].textContent;
+
+        this.comprobante = "Dev-" + a.children[6].textContent;
+        this.causa_devolucion = a.children[7].textContent;
+        this.precio_venta_salidas = a.children[5].textContent;
+        this.sucursal = a.children[15].textContent;
+        this.existencias_devueltas_insert = a.children[4].textContent;
+    }
+    const numFilas = document.querySelector("#tabla-devolucion-salidas-final > tbody").children
+    for(let i = 0 ; i < numFilas.length; i++){
+        if(numFilas[i]){
+            let filaPlus = new DatosDeDevolucionSalidas(numFilas[i]);
+            let urlDevolucionProductos = URL_API_almacen_central + 'procesar_devolución_salidas'
             let response = await funcionFetch(urlDevolucionProductos, filaPlus)
             console.log("Respuesta Productos "+response.status)
             if(response.status === 200){
                 suma_productos +=1;
+                modal_proceso_abrir("Procesando la devolución de la venta!!!.", `Producto ejecutado: ${suma_productos} de ${numFilas.length}`)
+                console.log(`Producto ejecutado: ${suma_productos} de ${numFilas.length}`)
             }
         };
     };
-    if(suma_productos === cantidadDeFilas){
-        await funcionDevolucionVentasSalidasUno();
-    }else{
-        alert(`Ocurrió un problema en la fila ${suma_productos + 1}`)
-    };
-};
-async function funcionDevolucionVentasSalidasUno(){
-    let suma_salidas = 0;
-    function EnviarASalidas(a){
-        this.idSal = a.children[0].textContent;
-        this.precio_venta_salidas = a.children[5].textContent;
-        this.existencias_salidas = a.children[3].textContent;
-        this.existencias_devueltas = a.children[13].textContent;
-    }
-    let cantidadDeFilas = document.querySelector("#tabla-devolucion-salidas-final > tbody").rows.length;
-    for(let i = 0 ; i < cantidadDeFilas; i++){
-        if(document.querySelector("#tabla-devolucion-salidas-final > tbody").children[i]){
-            let filaUnoEntradas = new EnviarASalidas(document.querySelector("#tabla-devolucion-salidas-final > tbody").children[i]);
-            let urlDevolucionSalidasUno = URL_API_almacen_central + 'salidas'
-            let response = await funcionFetch(urlDevolucionSalidasUno, filaUnoEntradas)
-            console.log("Respuesta Entradas uno"+response.status)
-            if(response.status === 200){
-                suma_salidas +=1;
-            }
-        };
-    };
-    if(suma_salidas === cantidadDeFilas){
-        await funcionDevolucionVentasSalidasDos();
-    }else{
-        alert(`Ocurrió un problema en la fila ${suma_salidas + 1}`)
-    };
-};
-async function funcionDevolucionVentasSalidasDos(){
-    let suma_salidas = 0;
-    function EnviarASalidasNuevaFila(a){
-        this.idProd = a.children[9].textContent;
-        this.cliente = 1;
-        this.comprobante = "Dev-" + a.children[6].textContent;
-        this.causa_devolucion = a.children[7].textContent;
-        this.fecha = fechaPrincipal;
-        this.precio_venta_salidas = a.children[5].textContent;
-        this.sucursal = a.children[15].textContent;
-        this.existencias_salidas = 0;
-        this.existencias_devueltas = a.children[4].textContent;
-        this.usuario = document.getElementById("identificacion_usuario_id").textContent;
-    }
-    let cantidadDeFilas = document.querySelector("#tabla-devolucion-salidas-final > tbody").rows.length;
-    for(let i = 0 ; i < cantidadDeFilas; i++){
-        if(document.querySelector("#tabla-devolucion-salidas-final > tbody").children[i]){
-            let filaDosEntradas = new EnviarASalidasNuevaFila(document.querySelector("#tabla-devolucion-salidas-final > tbody").children[i]);
-            let urlDevolucionSalidasDos = URL_API_almacen_central + 'salidas'
-            let response = await funcionFetch(urlDevolucionSalidasDos, filaDosEntradas)
-            console.log("Respuesta Entradas dos"+response.status)
-            if(response.status === 200){
-                suma_salidas +=1;
-            }
-        };
-    };
-    if(suma_salidas === cantidadDeFilas){
+    if(suma_productos === numFilas.length){
         await obteniendoDatosDeVenta();
     }else{
-        alert(`Ocurrió un problema en la fila ${suma_salidas + 1}`)
+        modal_proceso_abrir(`Ocurrió un problema en la fila ${suma_productos + 1}`, "")
+        modal_proceso_salir_botones()
     };
 };
 async function obteniendoDatosDeVenta(){
@@ -323,20 +279,23 @@ async function obteniendoDatosDeVenta(){
         };
         let urlMetodoDePago = URL_API_almacen_central + 'ventas'
         let response = await funcionFetch(urlMetodoDePago, metodoPago);
-        console.log("Respuesta obtención de datos "+response.status)
+        console.log("Respuesta detalle de venta "+response.status)
         if(response.status === 200){
             suma_DV +=1;
+            modal_proceso_abrir("Procesando la devolución de la venta!!!.", `Detalle de venta: ${suma_DV} de ${nuevoArrayComprobanteVenta.length}`)
+            console.log(`Detalle de venta: ${suma_DV} de ${nuevoArrayComprobanteVenta.length}`)
         }
     };
     if(suma_DV === nuevoArrayComprobanteVenta.length){
         await funcionGastosVarios();
     }else{
-        alert(`Ocurrió un problema en la fila ${suma_DV + 1}`)
+        modal_proceso_abrir(`Ocurrió un problema en la fila ${suma_DV + 1}`, "")
+        modal_proceso_salir_botones()
     };
 };
 async function funcionGastosVarios(){
     let suma_gastos = 0;
-    function dataGastosVarios(a){
+    function DataGastosVarios(a){
         this.sucursal_gastos = a.children[15].textContent;
         this.concepto = "Devolución";
         this.comprobante = a.children[6].textContent;
@@ -344,24 +303,28 @@ async function funcionGastosVarios(){
         this.usuario_gastos = document.getElementById("identificacion_usuario_id").textContent;   
         this.fecha_gastos = fechaPrincipal;
     };
-    let cantidadDeFilas = document.querySelector("#tabla-devolucion-salidas-final > tbody").rows.length;
-    for(let i = 0 ; i < cantidadDeFilas; i++){
-        if(document.querySelector("#tabla-devolucion-salidas-final > tbody").children[i]){
-            let dataGastos = new dataGastosVarios(document.querySelector("#tabla-devolucion-salidas-final > tbody").children[i]);
+    let numFilas = document.querySelector("#tabla-devolucion-salidas-final > tbody").children;
+    for(let i = 0 ; i < numFilas.length; i++){
+        if(numFilas[i]){
+            let dataGastos = new DataGastosVarios(numFilas[i]);
             let urlGastosVarios = URL_API_almacen_central + 'gastos_varios'
             let response = await funcionFetch(urlGastosVarios, dataGastos)
             console.log("Respuesta gastos "+response.status)
             if(response.status === 200){
                 suma_gastos +=1;
+                modal_proceso_abrir("Procesando la devolución de la venta!!!.", `Gastos varios: ${suma_gastos} de ${numFilas.length}`)
+                console.log(`Gastos varios: ${suma_gastos} de ${numFilas.length}`)
             }
         };
     };
-    if(suma_gastos === cantidadDeFilas){
-        alert("Operación completada exitosamente.")
+    if(suma_gastos === numFilas.length){
+        modal_proceso_abrir("Operación completada exitosamente.", "")
+        modal_proceso_salir_botones()
         document.querySelector("#tabla-devolucion-salidas-final > tbody").remove();
         document.querySelector("#tabla-devolucion-salidas-final").createTBody();
     }else{
-        alert(`Ocurrió un problema en la fila ${suma_gastos + 1}`)
+        modal_proceso_abrir(`Ocurrió un problema en la fila ${suma_gastos + 1}`, "")
+        modal_proceso_salir_botones()
     };
 };
 

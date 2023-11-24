@@ -274,61 +274,51 @@ function accionCantidadARecomprar(){
 async function procesamientoInventarioRecompras(e){
     e.preventDefault();
     if(Number(document.getElementById("accion_editar").value) > 0){
+        modal_proceso_abrir("Procesando la recompra!!!.", "")
         try{
             let respuesta_numeracion = await cargarNumeracionComprobante();
             if(respuesta_numeracion.ok){
-                await funcionAccionRecompraProductos()
+                await realizarRecompraProductos()
                 await searchAlmacenCentral(suma, 
                                         document.getElementById("filtro-tabla-productos-categoria").value, 
                                         document.getElementById("filtro-tabla-productos-codigo").value, 
                                         document.getElementById("filtro-tabla-productos-descripcion").value, 
                                         document.getElementById("filtro-tabla-productos-proveedor").value);
             }else{
-                alert("La conexión con el servidor no es buena.")
+                modal_proceso_abrir("La conexión con el servidor no es buena.", "")
+                modal_proceso_salir_botones()
             };
         }catch(error){
-            alert("Ocurrió un error. " + error);
+            modal_proceso_abrir("Ocurrió un error. " + error, "")
             console.error("Ocurrió un error. ", error)
+            modal_proceso_salir_botones()
         };
     }else{
-        alert("Unidades a recomprar insuficientes.")
+        modal_proceso_abrir("Unidades a recomprar insuficientes.", "")
+        modal_proceso_salir_botones()
     }
 };
-async function funcionAccionRecompraProductos(){
-    function IngresoAProductos(){
+async function realizarRecompraProductos(){
+    function DatosDeRecompraProductos(){
         this.idProd = document.getElementById("accion_id").value;
         this.sucursal_post = sucursales_activas[sucursal_indice_productos];
         this.existencias_post = document.getElementById("accion_saldo").value;
+
+        this.comprobante = "Recompra-" + (Number(numeracion[0].recompras) + 1);
+        this.existencias_entradas = document.getElementById("accion_editar").value;
+        this.sucursal = sucursal_id_productos;
     };
-    let filaProductos = new IngresoAProductos();
-    let url = URL_API_almacen_central + 'almacen_central_operacion';
+    let filaProductos = new DatosDeRecompraProductos();
+    let url = URL_API_almacen_central + 'procesar_recompra';
     let response = await funcionFetch(url, filaProductos)
     console.log("Respuesta Productos "+response.status)
     if(response.status === 200){
-        await funcionAccionRecompraEntradas()
-    }else{
-        alert(`Ocurrió un problema Productos`)
-    };
-};
-async function funcionAccionRecompraEntradas(){
-    function IngresoAEntradas(){
-        this.idProd = document.getElementById("accion_id").value;
-        this.comprobante = "Recompra-" + (Number(numeracion[0].recompras) + 1);
-        this.causa_devolucion = 0;
-        this.fecha = fechaPrincipal;
-        this.existencias_entradas = document.getElementById("accion_editar").value;
-        this.sucursal = sucursal_id_productos;
-        this.usuario = document.getElementById("identificacion_usuario_id").textContent;
-        this.existencias_devueltas = 0;
-    };
-    let filaEntradas = new IngresoAEntradas();
-    let urlEntradas = URL_API_almacen_central + 'entradas';
-    let response = await funcionFetch(urlEntradas, filaEntradas);
-    console.log("Respuesta Entradas "+response.status)
-    if(response.status === 200){
+        modal_proceso_abrir("Procesando la recompra!!!.", `Recompra ejecutada.`)
+        console.log(`Recompra ejecutada.`)
         await funcionAccionRecompraNumeracion()
     }else{
-        alert(`Ocurrió un problema Entradas`)
+        modal_proceso_abrir(`Ocurrió un problema`, "")
+        modal_proceso_salir_botones()
     };
 };
 async function funcionAccionRecompraNumeracion(){
@@ -347,12 +337,13 @@ async function funcionAccionRecompraNumeracion(){
     console.log("Respuesta Entradas "+response.status)
     if(response.status === 200){
         document.getElementById("form_accion_rapida").remove()
-        alert("Operación completada exitosamente.")
+        modal_proceso_abrir("Operación completada exitosamente.", "")
+        modal_proceso_salir_botones()
         document.getElementById("acciones_rapidas").classList.remove("modal-show-producto")
     }else{
-        alert(`Ocurrió un problema Numeración`)
+        modal_proceso_abrir(`Ocurrió un problema Numeración`, "")
+        modal_proceso_salir_botones()
     };
-    
 };
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////TRANSFERENCIAS////////////////////////////////////////////////////////////////////////////////////////////
@@ -386,7 +377,6 @@ function accion_transferencias(id) {
     document.getElementById("acciones_rapidas").classList.add("modal-show-producto")
     cargarSucursales("#accion_sucursal_destino")
     accionCambioSucursal()
-    
 };
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function llenarSucursalDestino(){
@@ -469,10 +459,11 @@ async function procesamientoInventarioTransferencias(e){
     if(Number(document.getElementById("accion_editar").value) > 0 && 
     document.getElementById("sucursal-principal").value !== document.getElementById("accion_sucursal_destino").value &&
     document.getElementById("accion_existencias").value >= 0){
+        modal_proceso_abrir("Procesando la transferencia!!!.", "")
         try{
             let respuesta_numeracion = await cargarNumeracionComprobante();
             if(respuesta_numeracion.ok){
-                await funcionAccionTransferenciaProductos()
+                await realizarTransferenciaProductos()
                 await searchAlmacenCentral(suma, 
                                         document.getElementById("filtro-tabla-productos-categoria").value, 
                                         document.getElementById("filtro-tabla-productos-codigo").value, 
@@ -480,77 +471,44 @@ async function procesamientoInventarioTransferencias(e){
                                         document.getElementById("filtro-tabla-productos-proveedor").value);
             };
         }catch(error){
-            alert("Ocurrió un error. " + error);
+            modal_proceso_abrir("Ocurrió un error. ", error, "")
             console.error("Ocurrió un error. ", error)
+            modal_proceso_salir_botones()
         };
     }else if(document.getElementById("sucursal-principal").value === document.getElementById("accion_sucursal_destino").value){
-        alert("Seleccione una sucursal de destino diferente a la de origen.")
+        modal_proceso_abrir("Seleccione una sucursal de destino diferente a la de origen.", "")
+        modal_proceso_salir_botones()
     }else if(Number(document.getElementById("accion_editar").value) <= 0){
-        alert("Unidades a transferir insuficientes.")
+        modal_proceso_abrir("Unidades a transferir insuficientes.", "")
+        modal_proceso_salir_botones()
     }else if(Number(document.getElementById("accion_existencias").value) < 0){
-        alert("No hay suficientes existencias en sucursal de origen.")
+        modal_proceso_abrir("No hay suficientes existencias en sucursal de origen.", "")
+        modal_proceso_salir_botones()
     };
 };
-async function funcionAccionTransferenciaProductos(){
-    function IngresoAProductos(){
+async function realizarTransferenciaProductos(){
+    function DatosDeTransferenciaProductos(){
         this.idProd = document.getElementById("accion_id").value;
         this.sucursal_post = sucursales_activas[sucursal_indice_productos]
         this.existencias_post = document.getElementById("accion_saldo").value;
         this.sucursal_post_dos = sucursales_activas[sucursal_indice_productos_destino]
         this.existencias_post_dos = document.getElementById("accion_saldo_dos").value;
+        this.comprobante = "Transferencia-" + (Number(numeracion[0].transferencias) + 1);
+        this.existencias = document.getElementById("accion_editar").value;
+        this.sucursal_entradas = document.getElementById("accion_sucursal_destino").value;
+        this.sucursal_salidas = document.getElementById("sucursal-principal").value;
     };
-    let filaProductos = new IngresoAProductos();
-    let url = URL_API_almacen_central + 'almacen_central_doble_operacion'
+    let filaProductos = new DatosDeTransferenciaProductos();
+    let url = URL_API_almacen_central + 'procesar_transferencia'
     let response = await funcionFetch(url, filaProductos)
     console.log("Respuesta Productos "+response.status)
     if(response.status === 200){
-        await funcionAccionTransferenciaEntradas()
-    }else{
-        alert(`Ocurrió un problema Productos`)
-    };
-};
-async function funcionAccionTransferenciaEntradas(){
-    function IngresoAEntradasTt(){
-        this.idProd = document.getElementById("accion_id").value;
-        this.comprobante = "Transferencia-" + (Number(numeracion[0].transferencias) + 1);
-        this.causa_devolucion = 0;
-        this.fecha = fechaPrincipal;
-        this.existencias_entradas = document.getElementById("accion_editar").value;
-        this.sucursal = document.getElementById("accion_sucursal_destino").value;
-        this.usuario = document.getElementById("identificacion_usuario_id").textContent;
-        this.existencias_devueltas = 0;
-    };
-    let filaEntradas = new IngresoAEntradasTt();
-    let urlEntradas = URL_API_almacen_central + 'entradas'
-    let response = await funcionFetch(urlEntradas, filaEntradas)
-    console.log("Respuesta Entradas "+response.status)
-    if(response.status === 200){
-        await funcionAccionTransferenciaSalidas()
-    }else{
-        alert(`Ocurrió un problema Entradas`)
-    };
-};
-async function funcionAccionTransferenciaSalidas(){
-    function IngresoASalidas(){
-        this.idProd = document.getElementById("accion_id").value;
-        this.cliente = 1;
-        this.comprobante = "Transferencia-" + (Number(numeracion[0].transferencias) + 1);
-        this.causa_devolucion = 0;
-        this.fecha = fechaPrincipal;
-        this.precio_venta_salidas = 0;
-        this.sucursal = document.getElementById("sucursal-principal").value;
-        this.existencias_salidas = document.getElementById("accion_editar").value;
-        this.existencias_devueltas = 0;
-        this.usuario = document.getElementById("identificacion_usuario_id").textContent;
-    };
-    let filaSalidas = new IngresoASalidas();
-    let urlSalidas = URL_API_almacen_central + 'salidas'
-    let response = await funcionFetch(urlSalidas, filaSalidas)
-    console.log("Respuesta Salidas "+response.status)
-    if(response.status === 200){
+        modal_proceso_abrir("Procesando la transferencia!!!.", `Transferencia ejecutada`)
+        console.log(`Transferencia ejecutada`)
         await funcionAccionTransferenciaNumeracion()
     }else{
-        alert(`Ocurrió un problema Salidas`)
+        modal_proceso_abrir(`Ocurrió un problema.`, "")
+        modal_proceso_salir_botones()
     };
 };
 async function funcionAccionTransferenciaNumeracion(){
@@ -568,11 +526,13 @@ async function funcionAccionTransferenciaNumeracion(){
     let response = await funcionFetch(urlNumeracion, dataComprobante)
     console.log("Respuesta Numeración "+response.status)
     if(response.status === 200){
-        alert("Operación completada exitosamente.")
+        modal_proceso_abrir("Operación completada exitosamente.", "")
+        modal_proceso_salir_botones()
         document.getElementById("acciones_rapidas").classList.remove("modal-show-producto")
         document.getElementById("form_accion_rapida").remove()
     }else{
-        alert(`Ocurrió un problema Numeración`)
+        modal_proceso_abrir(`Ocurrió un problema  Numeración.`, "")
+        modal_proceso_salir_botones()
     };
 };
 /////////////////////////////////////////////////////////////////////////////////////////////

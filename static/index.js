@@ -604,4 +604,28 @@ function inicioColoresFondo(){
             document.documentElement.style.setProperty('--boton-tres', colores_fondo_web.boton_tres[i]);
         }
     }
+};
+function modal_proceso_abrir(mensaje, estado){
+    document.getElementById('myModal').style.display = 'block';
+    document.getElementById('mensaje_proceso').textContent = mensaje
+    document.getElementById('estado_proceso').textContent = estado
+}
+function modal_proceso_abrir_botones(){
+    document.querySelector('.botones_respuesta').style.display = 'block';
+}
+function modal_proceso_abrir_botones_salir(){
+    document.querySelector('.botones_respuesta_dos').style.display = 'block';
+}
+function modal_proceso_cerrar(){
+    document.getElementById('myModal').style.display = 'none';
+}
+function modal_proceso_cerrar_botones(){
+    document.querySelector('.botones_respuesta').style.display = 'none';
+}
+function modal_proceso_salir_botones(){
+    modal_proceso_abrir_botones_salir()
+    document.getElementById("si_salir").addEventListener("click", () =>{
+        document.querySelector('.botones_respuesta_dos').style.display = 'none';
+        modal_proceso_cerrar()
+    })
 }
