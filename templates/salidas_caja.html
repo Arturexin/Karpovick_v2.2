@@ -8,16 +8,17 @@
         <button id="salidas-caja" class="myButtonAgregarDos marcaBoton">Salidas de Caja</button>
     </div>
     <form id="formulario-gastos-varios" class="contenedor_gastos_varios">
-        <h2>Gastos Varios</h2>
+        <h2>Salidas de efectivo</h2>
         <div>
             <label class="label-general"> Concepto
                 <select name="concepto-gastos" id="concepto-gastos" class="input-general fondo">
-                    <option value="Caja Bancos">Caja Bancos</option>
+                    <option value="Depósito Bancario">Depósito Bancario</option>
+                    <option value="Alquiler">Alquiler</option>
                     <option value="Servicios">Servicios</option>
                     <option value="Otros Gastos">Otros Gastos</option>
                 </select>
             </label>
-            <label class="label-general">Comprobante<input id="comprobante-gastos" class="input-general fondo" type="text"></label>
+            <label class="label-general">Descripción<input id="comprobante-gastos" class="input-general fondo" type="text"></label>
             <label class="label-general">Monto<input id="monto-gastos" class="input-general fondo" type="text"></label>
         </div>
         
@@ -29,7 +30,7 @@
         <table id="tabla-gastos-varios" class="tabla-proforma">
             <thead>
                 <tr>
-                    <th scope="row" colspan="10"><h2>Gastos Varios</h2></th>
+                    <th scope="row" colspan="10"><h2>Salidas de efectivo</h2></th>
                 </tr>
                 <tr>
                     <th scope="row" colspan="15">
@@ -55,7 +56,7 @@
                         </datalist> 
                     </th>
                     <th>Concepto<input id="filtro-tabla-gastosVarios-concepto" type="text" class="input-filtro" placeholder="Concepto"></th>
-                    <th>Comprobante<input id="filtro-tabla-gastosVarios-comprobante" type="text" class="input-filtro" placeholder="Comprobante"></th>
+                    <th>Descripción<input id="filtro-tabla-gastosVarios-comprobante" type="text" class="input-filtro" placeholder="Descripción"></th>
                     <th>Monto</th>
                     <th>Usuario<input id="filtro-tabla-gastosVarios-usuario" type="text" class="input-filtro" placeholder="Usuario"></th>
                     <th>Fecha</th>

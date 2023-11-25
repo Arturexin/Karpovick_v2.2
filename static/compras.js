@@ -153,35 +153,6 @@ function mostrarFormrecompraProductoPlus(e){
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 let codigoComprobacionCompra = ""
-function marcarProductoCodigoRepetido(){//verificamos que el nuevo producto no tenga el mismo código en la tabla compras
-    const codigoComprasComparacionProductos = document.querySelectorAll(".codigo_compras_modal");
-    codigoComprasComparacionProductos.forEach((event) => {
-        document.querySelectorAll(".codigo_compras_proforma").forEach((elemento) => {
-            if(elemento.textContent.toLocaleLowerCase().includes(event.textContent.toLocaleLowerCase())){
-                let respuesta = confirm(`El código ${elemento.textContent} en ${elemento.parentNode.children[1].textContent} `+
-                `ya existe en la tabla "Lista de Compras", si continúa se remplazará por este nuevo código, ¿Desea continuar?.`)
-                if(respuesta){
-                    elemento.parentNode.style.background = "#b36659"
-                }else{
-                    event.parentNode.remove();
-                    document.querySelector(".contenedor-pre-recompra").classList.remove("modal-show")
-                }
-            };
-        });
-    });
-};
-function removerProductoCodigoRepetido(){
-    const codigoComprasComparacionProductos = document.querySelectorAll(".codigo_compras_modal");
-    codigoComprasComparacionProductos.forEach((event) => {
-        document.querySelectorAll(".codigo_compras_proforma").forEach((elemento) => {
-            if(elemento.textContent.toLocaleLowerCase().includes(event.textContent.toLocaleLowerCase()) && 
-            event.parentNode.children[1].textContent === elemento.parentNode.children[1].textContent &&
-            event.parentNode.children[7].children[0].value > 0){
-            elemento.parentNode.remove()
-            }
-        });
-    });
-};
 function crearHeadCompra(){
     let tablaCompras= document.querySelector("#tabla_modal > thead");
     let nuevaFilaTablaCompras = tablaCompras.insertRow(-1);
@@ -205,7 +176,7 @@ function crearBodyCompras (tallaAComprar, loteAComprar){
     let tablaCompras= document.querySelector("#tabla_modal > tbody");
     let nuevaFilaTablaCompras = tablaCompras.insertRow(-1);
     let fila = `<tr>
-                    <td class="id_compras_proforma invisible"></td>
+                    <td class="id_compras_modal invisible"></td>
                     <td>${document.getElementById("sucursal-compras").value}</td>
                     <td>${document.getElementById("categoria-compras").children[document.getElementById("categoria-compras").selectedIndex].textContent}</td>
                     <td class="codigo_compras_modal input-tablas fondo" style="background: rgb(105, 211, 35)">${document.getElementById("codigo-compras").value}-${tallaAComprar}-${loteAComprar}</td>
@@ -268,7 +239,7 @@ function agregarAtablaCompras(e){
 
         comprobarCodigoProductos(".codigo_compras_modal");//Comprueba códigos repetidos
         operarCantidadAComprar();
-        marcarProductoCodigoRepetido();
+        marcarCodigoRepetido(".codigo_compras_modal", ".codigo_compras_proforma", document.querySelector("#tabla_principal > thead > tr:nth-child(1) > th > h2").textContent)
         arrayCreacionCategoriaTallasCompras = [];
         document.querySelector("#tabla_modal > tbody > tr:nth-child(1) > td:nth-child(8) > input").focus()
 
@@ -304,7 +275,7 @@ const mandarATablaComprasPrincipal = document.getElementById("procesar-pre-compr
 mandarATablaComprasPrincipal.addEventListener("click", mandarATablaPrincipalCompras)
 function mandarATablaPrincipalCompras(e){
     e.preventDefault();
-    removerProductoCodigoRepetido();
+    removerCodigoRepetido(".codigo_compras_modal", ".codigo_compras_proforma", 7)
     filaBodyProformaPincipal()
     const borrarNumero = document.querySelectorAll(".insertarNumero");//eliminamos las filas que si pasaron a la tabla principal
     borrarNumero.forEach((e)=>{
@@ -522,30 +493,15 @@ document.addEventListener("keyup", () =>{
         };
     };
 });
-function marcarProductoRepetido(){//verificamos que el nuevo producto no tenga el mismo código en la tabla compras
-    const codigoComprasComparacionProductos = document.querySelectorAll(".id_compras_modal");
-    codigoComprasComparacionProductos.forEach((event) => {
-        document.querySelectorAll(".id_compras_proforma").forEach((elemento) => {
-            if(elemento.textContent === event.textContent && elemento.parentNode.children[1].textContent === event.parentNode.children[1].textContent){
-                let respuesta = confirm('El código ' + event.parentNode.children[3].textContent + ' en ' + event.parentNode.children[1].textContent + " ya existe en la tabla Lista de Compras, si continúa se remplazará por este nuevo código, ¿Desea continuar?.")
-                if(respuesta){
-                    event.parentNode.style.background = "#b36659"
-                }else{
-                    elemento.parentNode.remove()
-                    document.querySelector(".contenedor-pre-recompra").classList.remove("modal-show")
-                }
-            };
-        });
-    });
-};
+
 function removerProductoRepetido(){//verificamos que el nuevo producto no tenga el mismo código en la tabla compras
     const codigoComprasComparacionProductos = document.querySelectorAll(".id_compras_modal");
     codigoComprasComparacionProductos.forEach((event) => {
         document.querySelectorAll(".id_compras_proforma").forEach((elemento) => {
             if(elemento.textContent === event.textContent &&
-                elemento.parentNode.children[7].children[0].value > 0 && 
+                event.parentNode.children[7].children[0].value > 0 && 
                 elemento.parentNode.children[1].textContent === event.parentNode.children[1].textContent){
-                event.parentNode.remove()
+                elemento.parentNode.remove()
             }
         });
     });
@@ -571,7 +527,7 @@ function crearBodyRecompras (codigoMovimientos){
     let tablaRecompras= document.querySelector("#tabla_modal > tbody");
     let nuevaFilaTablaRecompras = tablaRecompras.insertRow(-1);
     let fila = `<tr>
-                    <td class="id_compras_proforma invisible"></td>
+                    <td class="id_compras_modal invisible"></td>
                     <td>${document.getElementById("sucursal-compras").value}</td>
                     <td>${document.getElementById("categoria-compras").children[document.getElementById("categoria-compras").selectedIndex].textContent}</td>
                     <td class="codigo_compras_modal insertarMovimientos">${codigoMovimientos}</td>
@@ -635,7 +591,7 @@ async function agregarATablaPreRecompras(e){
         document.querySelector(".contenedor-pre-recompra").classList.add("modal-show")
         await buscarPorCodidoMovimientosOrigen();
         operarCantidadARecomprar();
-        marcarProductoRepetido();
+        marcarIdRepetido(".id_compras_modal", ".id_compras_proforma", document.querySelector("#tabla_principal > thead > tr:nth-child(1) > th > h2").textContent)
         formularioComprasUno.reset();
         arrayCreacionCategoriaTallasCompras = [];
         document.querySelector("#tabla_modal > tbody > tr > td:nth-child(8) > input").focus();
@@ -709,7 +665,7 @@ function filaBodyProformaPincipal(){
             let fila_principal = document.querySelector("#tabla_principal > tbody");
             let nueva_fila_principal = fila_principal.insertRow(-1);
             let fila = `<tr>
-                            <td class="id_compras_modal invisible">${event.parentNode.children[0].textContent}</td>
+                            <td class="id_compras_proforma invisible">${event.parentNode.children[0].textContent}</td>
                             <td>${event.parentNode.children[1].textContent}</td>
                             <td>${event.parentNode.children[2].textContent}</td>
                             <td class="codigo_compras_proforma">${event.textContent}</td>

@@ -3653,8 +3653,7 @@ def main():
 @app.route('/login', methods=['GET', 'POST'])
 @cross_origin()
 def login():
-    #usuarioLlave = session.get('usernameDos')
-    
+
     if request.method=='POST':
         user = User(0,0,0,0,request.json['username'],0,0,0,request.json['password'],0,0)
         #username y password son datos del formulario del html

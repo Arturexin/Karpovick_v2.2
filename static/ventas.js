@@ -35,6 +35,9 @@ function buscarClienteVentas(cliente){
     document.getElementById('emailv').value = cliente.email_cli
     document.getElementById('telefonov').value = cliente.telefono_cli
     document.getElementById('direccionv').value = cliente.direccion_cli
+    conteoCliente()
+    modal_proceso_abrir("Cliente encontrado.", "")
+    modal_proceso_salir_botones()
 };
 document.getElementById("boton-buscar-ventas-clientes").addEventListener("click", (e)=>{
     e.preventDefault()
@@ -43,8 +46,6 @@ document.getElementById("boton-buscar-ventas-clientes").addEventListener("click"
         let cliente = indice_cli.find(y => y.nombre_cli.toLowerCase().includes(document.getElementById('buscar-cliente-ventas').value.toLowerCase()))
         if(indice_cli.find(y => y.nombre_cli.toLowerCase().includes(document.getElementById('buscar-cliente-ventas').value.toLowerCase()))){
             buscarClienteVentas(cliente)
-            modal_proceso_abrir("Cliente encontrado.", "")
-            modal_proceso_salir_botones()
         }else{
             modal_proceso_abrir("Cliente no encontrado", "")
             modal_proceso_salir_botones()
@@ -54,8 +55,6 @@ document.getElementById("boton-buscar-ventas-clientes").addEventListener("click"
         let cliente = indice_cli.find(y => y.dni_cli.toLowerCase().includes(document.getElementById('buscar-cliente-ventas').value.toLowerCase()))
         if(indice_cli.find(y => y.dni_cli.toLowerCase().includes(document.getElementById('buscar-cliente-ventas').value.toLowerCase()))){
             buscarClienteVentas(cliente)
-            modal_proceso_abrir("Cliente encontrado.", "")
-            modal_proceso_salir_botones()
         }else{
             modal_proceso_abrir("Cliente no encontrado", "")
             modal_proceso_salir_botones()
@@ -65,8 +64,6 @@ document.getElementById("boton-buscar-ventas-clientes").addEventListener("click"
         let cliente = indice_cli.find(y => y.email_cli.toLowerCase().includes(document.getElementById('buscar-cliente-ventas').value.toLowerCase()))
         if(indice_cli.find(y => y.email_cli.toLowerCase().includes(document.getElementById('buscar-cliente-ventas').value.toLowerCase()))){
             buscarClienteVentas(cliente)
-            modal_proceso_abrir("Cliente encontrado.", "")
-            modal_proceso_salir_botones()
         }else{
             modal_proceso_abrir("Cliente no encontrado", "")
             modal_proceso_salir_botones()
@@ -76,15 +73,13 @@ document.getElementById("boton-buscar-ventas-clientes").addEventListener("click"
         let cliente = indice_cli.find(y => y.telefono_cli.toLowerCase().includes(document.getElementById('buscar-cliente-ventas').value.toLowerCase()))
         if(indice_cli.find(y => y.telefono_cli.toLowerCase().includes(document.getElementById('buscar-cliente-ventas').value.toLowerCase()))){
             buscarClienteVentas(cliente)
-            modal_proceso_abrir("Cliente encontrado.", "")
-            modal_proceso_salir_botones()
         }else{
             modal_proceso_abrir("Cliente no encontrado", "")
             modal_proceso_salir_botones()
             document.getElementById("formularioClientesVentas").reset();
         };
     };
-    conteoCliente()
+    
 });
 ////////////////////////////////////////////////////////////////////////////
 function descolorearFormulario(formularioInput){

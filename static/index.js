@@ -629,3 +629,53 @@ function modal_proceso_salir_botones(){
         modal_proceso_cerrar()
     })
 }
+//////////////////////////////////////////////////////////////////////////////
+//Modal y tablas
+/////////////////////////////////////////////////////////////////////////////
+function marcarCodigoRepetido(class_codigo_modal, class_codigo_proforma, nombre_tabla_proforma){//verificamos que el nuevo producto no tenga el mismo código en la tabla proforma modificación
+    const codigoModal = document.querySelectorAll(class_codigo_modal);
+    codigoModal.forEach((event) => {
+        document.querySelectorAll(class_codigo_proforma).forEach((elemento) => {
+            if(elemento.textContent.toLocaleLowerCase().includes(event.textContent.toLocaleLowerCase())){
+                let respuesta = confirm(`El código ${event.textContent} `+
+                                        `ya existe en la tabla ${nombre_tabla_proforma}, `+
+                                        `si continúa se remplazará por este nuevo código, `+
+                                        `¿Desea continuar?.`)
+                if(respuesta){
+                    elemento.parentNode.style.background = "#b36659"
+                }else{
+                    event.parentNode.remove();
+                };
+            };
+        });
+    });
+};
+function marcarIdRepetido(class_id_modal, class_id_proforma, nombre_tabla_proforma){//verificamos que el nuevo producto no tenga el mismo id en la tabla productos
+    const idModal = document.querySelectorAll(class_id_modal);
+    idModal.forEach((event) => {
+        document.querySelectorAll(class_id_proforma).forEach((elemento) => {
+            if(elemento.textContent === event.textContent &&
+            elemento.parentNode.children[1].textContent === event.parentNode.children[1].textContent){
+                let respuesta = confirm(`El código  ${event.parentNode.children[3].textContent} ya existe en la `+
+                                        `tabla ${nombre_tabla_proforma}Lista de Productos, si continúa se remplazará `+
+                                        `por este nuevo código, ¿Desea continuar?.`)
+                if(respuesta){
+                    elemento.parentNode.style.background = "#b36659"
+                }else{
+                    event.parentNode.remove()
+                }
+            };
+        });
+    });
+};
+function removerCodigoRepetido(class_codigo_modal, class_codigo_proforma, num_columna){//verificamos que el nuevo producto no tenga el mismo código en la tabla proforma modificación
+    const codigoModal = document.querySelectorAll(class_codigo_modal);
+    codigoModal.forEach((event) => {
+        document.querySelectorAll(class_codigo_proforma).forEach((elemento) => {
+            if(elemento.textContent.toLocaleLowerCase().includes(event.textContent.toLocaleLowerCase()) &&
+                event.parentNode.children[num_columna].children[0].value > 0){
+                elemento.parentNode.remove()
+            }
+        });
+    });
+};

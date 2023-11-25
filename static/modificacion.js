@@ -13,7 +13,7 @@ function cambioSucursalModificacion(){
             document.getElementById("sucursal-modificacion").value = event.target[indice_sucursal_modificacion].textContent
         };
     });
-}
+};
 
 function formulario_registro(){
     let formRegistro = `
@@ -136,34 +136,8 @@ botonEditarProducto.addEventListener("click", (e) =>{
 ////////////////////////////////////////////REGISTRAR PRODUCTOS//////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 let codigoComprobacionRegistro = ""
-function marcarCodigoRepetido(){//verificamos que el nuevo producto no tenga el mismo código en la tabla proforma modificación
-    const codigoRegistroComparacion = document.querySelectorAll(".codigo-registro-comparacion");
-    codigoRegistroComparacion.forEach((event) => {
-        document.querySelectorAll(".codigo-comparacion-tabla-proforma-modificacion").forEach((elemento) => {
-            if(elemento.textContent.toLocaleLowerCase().includes(event.value.toLocaleLowerCase()) &&
-                elemento.parentNode.children[1].textContent === document.getElementById("sucursal-principal").value){
-                    let respuesta = confirm('El código ' + elemento.textContent + ' en ' + elemento.parentNode.children[1].textContent + " ya existe en la tabla Lista de Compras, si continúa se remplazará por este nuevo código, ¿Desea continuar?.")
-                    if(respuesta){
-                        elemento.parentNode.style.background = "#b36659"
-                    }else{
-                        event.parentNode.parentNode.remove();
-                    }
-            }
-        });
-    });
-};
-function removerCodigoRepetido(){//verificamos que el nuevo producto no tenga el mismo código en la tabla proforma modificación
-    const codigoRegistroComparacion = document.querySelectorAll(".codigo-registro-comparacion");
-    codigoRegistroComparacion.forEach((event) => {
-        document.querySelectorAll(".codigo-comparacion-tabla-proforma-modificacion").forEach((elemento) => {
-            if(elemento.textContent.toLocaleLowerCase().includes(event.value.toLocaleLowerCase()) && 
-                event.parentNode.parentNode.children[1].textContent === elemento.parentNode.children[1].textContent &&
-                event.parentNode.parentNode.children[6].children[0].value > 0){
-                elemento.parentNode.remove()
-            }
-        });
-    });
-};
+
+
 function crearBodyRegistro(tallaRegistro, loteRegistro){
     let tablaRegistro = document.querySelector("#tabla-pre-modificacion > tbody");
     let nuevaFilaTablaRegistro = tablaRegistro.insertRow(-1);
@@ -171,7 +145,7 @@ function crearBodyRegistro(tallaRegistro, loteRegistro){
                     <td class="invisible"></td>
                     <td>${document.getElementById("sucursal-modificacion").value}</td>
                     <td>${document.getElementById("categoria-modificacion").children[document.getElementById("categoria-modificacion").selectedIndex].textContent}</td>
-                    <td class="codigo-registro-comparacion" style="background: rgb(105, 211, 35)">${document.getElementById("codigo-modificacion").value + "-" + tallaRegistro + "-" + loteRegistro}</td>
+                    <td class="codigo_modal" style="background: rgb(105, 211, 35)">${document.getElementById("codigo-modificacion").value + "-" + tallaRegistro + "-" + loteRegistro}</td>
                     <td><input class="input-tablas-texto-largo" value="${document.getElementById("descripcion-modificacion").value}"></td>
                     <td>${tallaRegistro}</td>
                     <td><input class="input-tablas-dos-largo existencias-modificacion"></td>
@@ -207,7 +181,7 @@ function agregarNuevoProductoATablaModificacion(e){
         ///////////////////////////////////////////////////////////////////////////////
         document.querySelector(".contenedor-pre-modificacion").classList.add("modal-show-modificacion");
         categoriaProductosCreacion("categoria-modificacion", arrayCreacionCategoriaTallasModificacion);
-        compararCodigosNuevos(".codigo-registro-comparacion", codigoComprobacionRegistro, ".label-modificacion");
+        compararCodigosNuevos(".codigo_modal", codigoComprobacionRegistro, ".label-modificacion");
         ///////////////////////////////////////////////////////////////////////////////
         arrayCreacionCategoriaTallasModificacion.forEach((event) =>{
             crearBodyRegistro(event, document.getElementById("lote-modificacion").value)
@@ -223,8 +197,8 @@ function agregarNuevoProductoATablaModificacion(e){
         document.getElementById("sucursal-modificacion").value = document.querySelector("#sucursal-principal").children[indice_sucursal_modificacion].textContent
 
         operacionCostoTotalModificacion();
-        comprobarCodigoProductos(".codigo-registro-comparacion");
-        marcarCodigoRepetido();
+        comprobarCodigoProductos(".codigo_modal");
+        marcarCodigoRepetido(".codigo_modal", ".codigo_proforma", document.querySelector("#tabla-proforma-modificacion > thead > tr:nth-child(1) > th > h2").textContent)
         arrayCreacionCategoriaTallasModificacion = [];
         document.querySelector("#tabla-pre-modificacion > tbody > tr:nth-child(1) > td:nth-child(7) > input").focus()
 
@@ -242,7 +216,7 @@ function agregarNuevoProductoATablaModificacion(e){
     
 };
 function filaBodyProformaPincipal(){
-    const fila_modal = document.querySelectorAll(".codigo-registro-comparacion");
+    const fila_modal = document.querySelectorAll(".codigo_modal");
     fila_modal.forEach((event)=>{
         if(Number(event.parentNode.children[8].textContent) >= 0 &&
         event.parentNode.children[4].children[0].value != "" &&
@@ -251,10 +225,10 @@ function filaBodyProformaPincipal(){
             let fila_principal = document.querySelector("#tabla-proforma-modificacion > tbody");
             let nueva_fila_principal = fila_principal.insertRow(-1);
             let fila = `<tr>
-                        <td class="id_compras_modal invisible">${event.parentNode.children[0].textContent}</td>
+                        <td class="id_modificacion_proforma invisible">${event.parentNode.children[0].textContent}</td>
                         <td>${event.parentNode.children[1].textContent}</td>
                         <td>${event.parentNode.children[2].textContent}</td>
-                        <td class="codigo-comparacion-tabla-proforma-modificacion">${event.textContent}</td>
+                        <td class="codigo_proforma">${event.textContent}</td>
                         <td>${event.parentNode.children[4].children[0].value}</td>
                         <td>${event.parentNode.children[5].textContent}</td>
                         <td style="text-align: right">${event.parentNode.children[6].children[0].value}</td>
@@ -280,7 +254,7 @@ function filaBodyProformaPincipal(){
 const procesarIngresarNuevo = document.getElementById("procesar-modificacion-uno");
 procesarIngresarNuevo.addEventListener("click", (e) => {
     e.preventDefault();
-    removerCodigoRepetido();
+    removerCodigoRepetido(".codigo_modal", ".codigo_proforma", 6)
     filaBodyProformaPincipal()
     const borrar = document.querySelectorAll(".existencias-modificacion");//eliminamos las filas que si pasaron a la tabla principal
     borrar.forEach((e)=>{
@@ -363,7 +337,7 @@ async function funcionRegistrosProductos(){
 async function encontrarIdProductosRegistro(){//busca el id del nuevo producto el almacén central para grabar la compra en entradas
     let suma_id_productos = 0;
     let codigoNuevo;
-    let codigoComparador = document.querySelectorAll(".codigo-comparacion-tabla-proforma-modificacion")
+    let codigoComparador = document.querySelectorAll(".codigo_proforma")
     for(cod of codigoComparador){
         let url = URL_API_almacen_central + `almacen_central_codigo_sucursal/${cod.textContent}?`+
                                             `sucursal_get=${sucursales_activas[indice_sucursal_modificacion]}`
@@ -418,7 +392,7 @@ async function funcionRegistrosEntradas(){
         };
     };
     if(suma_entradas === numFilas.length){
-        modal_proceso_abrir("Operación completada exitosamente. (Entradas: Traspaso)", "")
+        modal_proceso_abrir("Operación completada exitosamente.", "")
         modal_proceso_salir_botones()
         document.querySelector("#tabla-proforma-modificacion  > tbody").remove();
         document.querySelector("#tabla-proforma-modificacion ").createTBody();
@@ -461,6 +435,17 @@ document.addEventListener("keyup", () =>{
     };
     
 });
+
+function removerModificacionRepetido(){//verificamos que el nuevo producto no tenga el mismo id en la tabla productos
+    const idModal = document.querySelectorAll(".id_modificacion_modal");
+    idModal.forEach((event) => {
+        document.querySelectorAll(".id_modificacion_proforma").forEach((elemento) => {
+            if(elemento.textContent === event.textContent){
+                elemento.parentNode.remove()
+            }
+        });
+    });
+};
 function eliminarFilaCompras(){
     document.querySelectorAll(".eliminar_fila_compras").forEach((event)=>{
         event.addEventListener("click", ()=>{
@@ -472,13 +457,13 @@ function crearBodyModificacion(codigoModificacion){
     let tablaMofidicacion = document.querySelector("#tabla-pre-modificacion > tbody");
     let nuevaFilaTablaModificacion = tablaMofidicacion.insertRow(-1);
     let fila = `<tr>
-                    <td class="id-modificacion-comprobacion-proforma invisible"></td>
+                    <td class="id_modificacion_modal invisible"></td>
                     <td>${document.getElementById("sucursal-modificacion").value}</td>
                     <td>
                         <select class="categoria_cambio">
                         </select>
                     </td>
-                    <td><input class="codigo-registro-comparacion input-tablas" value="${codigoModificacion}"></td>
+                    <td><input class="codigo_modal input-tablas" value="${codigoModificacion}"></td>
                     <td><input class="input-tablas-texto-largo"></td>
                     <td></td>
                     <td><input class="existencias-modificacion input-tablas-dos-largo"></td>
@@ -509,7 +494,7 @@ function crearBodyModificacion(codigoModificacion){
 
 /////AQUI MANDAMOS A TABLA PREMODIFICACION PARA EDITAR VALORES/////////////////////////////////////////////////////////////
 
-function agregarATablaPreModificacion(e){
+async function agregarATablaPreModificacion(e){
     e.preventDefault();
     if(document.getElementById("id-modificacion").value > 0){
         document.querySelector(".contenedor-pre-modificacion").classList.add("modal-show-modificacion");
@@ -547,9 +532,9 @@ function agregarATablaPreModificacion(e){
         };
     };
     
-    buscarPorCodidoModificacionOrigen();
-    marcarCodigoRepetido();
+    await buscarPorCodidoModificacionOrigen();
     operacionCostoTotalModificacion()
+    marcarIdRepetido(".id_modificacion_modal", ".id_modificacion_proforma", document.querySelector("#tabla-proforma-modificacion > thead > tr:nth-child(1) > th > h2").textContent)
     arrayCreacionCategoriaTallasModificacion = [];
 };
 function rellenarCategoria(){
@@ -578,7 +563,7 @@ function rellenarProveedor(){
     });
 };
 async function buscarPorCodidoModificacionOrigen(){
-    const codigoComparacion = document.querySelectorAll(".codigo-registro-comparacion");
+    const codigoComparacion = document.querySelectorAll(".codigo_modal");
     for(codMod of codigoComparacion){
         try{
             let url = URL_API_almacen_central + `almacen_central_codigo_sucursal/${codMod.value}?`+
@@ -641,7 +626,7 @@ function operacionCostoTotalModificacion(){
 const procesarModificar = document.getElementById("procesar-modificacion-dos");
 procesarModificar.addEventListener("click", (e) => {
     e.preventDefault();
-    removerCodigoRepetido();
+    removerModificacionRepetido();
     filaBodyProformaPincipalDos();
 
     document.querySelector("#tabla-pre-modificacion > tbody").remove();
@@ -653,7 +638,7 @@ procesarModificar.addEventListener("click", (e) => {
 });
 function filaBodyProformaPincipalDos(){
     
-    const fila_modal = document.querySelectorAll(".codigo-registro-comparacion");
+    const fila_modal = document.querySelectorAll(".codigo_modal");
     fila_modal.forEach((event)=>{
         if(Number(event.parentNode.parentNode.children[8].textContent) >= 0 &&
         event.parentNode.parentNode.children[4].children[0].value != "" &&
@@ -662,10 +647,10 @@ function filaBodyProformaPincipalDos(){
             let fila_principal = document.querySelector("#tabla-proforma-modificacion > tbody");
             let nueva_fila_principal = fila_principal.insertRow(-1);
             let fila = `<tr>
-                            <td class="id_compras_modal invisible">${event.parentNode.parentNode.children[0].textContent}</td>
+                            <td class="id_modificacion_proforma invisible">${event.parentNode.parentNode.children[0].textContent}</td>
                             <td>${event.parentNode.parentNode.children[1].textContent}</td>
                             <td>${event.parentNode.parentNode.children[2].children[0].children[event.parentNode.parentNode.children[2].children[0].selectedIndex].textContent}</td>
-                            <td class="codigo-comparacion-tabla-proforma-modificacion">${event.value}</td>
+                            <td class="codigo_proforma">${event.value}</td>
                             <td>${event.parentNode.parentNode.children[4].children[0].value}</td>
                             <td>${event.parentNode.parentNode.children[5].textContent}</td>
                             <td style="text-align: right">${event.parentNode.parentNode.children[6].children[0].value}</td>
