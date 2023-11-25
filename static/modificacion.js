@@ -440,7 +440,8 @@ function removerModificacionRepetido(){//verificamos que el nuevo producto no te
     const idModal = document.querySelectorAll(".id_modificacion_modal");
     idModal.forEach((event) => {
         document.querySelectorAll(".id_modificacion_proforma").forEach((elemento) => {
-            if(elemento.textContent === event.textContent){
+            if(elemento.textContent === event.textContent && 
+                elemento.parentNode.children[1].textContent === event.parentNode.children[1].textContent){
                 elemento.parentNode.remove()
             }
         });

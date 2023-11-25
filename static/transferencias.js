@@ -55,28 +55,29 @@ document.getElementById("sucursal-destino-transferencias").addEventListener("cha
 /////////////////////////////////TRANSFERENCIAS PLUS////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function marcarProductoRepetidoTransferencias(){//verificamos que el nuevo producto no tenga el mismo código en la tabla transferencias comparando id
-    const codigoComprasComparacionProductos = document.querySelectorAll(".id-transferencias-comprobacion");
+    const codigoComprasComparacionProductos = document.querySelectorAll(".id_proforma");
     codigoComprasComparacionProductos.forEach((event) => {
-        document.querySelectorAll(".id-transferencias-comprobacion-proforma").forEach((elemento) => {
+        document.querySelectorAll(".id_modal").forEach((elemento) => {
             if(elemento.textContent === event.textContent &&
+            event.parentNode.children[1].textContent == elemento.parentNode.children[1].textContent &&
             event.parentNode.children[8].textContent == elemento.parentNode.children[8].textContent){
                 let respuesta = confirm("El código " + event.parentNode.children[3].textContent + " ya está en proceso de transferencia a " + event.parentNode.children[8].textContent + ", si continua se reemplazará por este nuevo.")
                 if(respuesta){
                     event.parentNode.style.background = "#b36659"
                 }else{
                     elemento.parentNode.remove()
-                    document.querySelector(".contenedor-pre-transferencia").classList.remove("modal-show-transferencia")
                 }
             };
         });
     });
 };
 function removerProductoRepetidoTransferencias(){//elimina fila repetida
-    const codigoComprasComparacionProductos = document.querySelectorAll(".id-transferencias-comprobacion");
+    const codigoComprasComparacionProductos = document.querySelectorAll(".id_proforma");
     codigoComprasComparacionProductos.forEach((event) => {
-        document.querySelectorAll(".id-transferencias-comprobacion-proforma").forEach((elemento) => {
+        document.querySelectorAll(".id_modal").forEach((elemento) => {
             if(elemento.textContent === event.textContent &&
                 elemento.parentNode.children[7].children[0].value > 0 &&
+                event.parentNode.children[1].textContent == elemento.parentNode.children[1].textContent &&
                 event.parentNode.children[8].textContent == elemento.parentNode.children[8].textContent){
                 event.parentNode.remove()
             }
@@ -87,7 +88,7 @@ function crearBodyTransferencias (codigoTransferencia){
     let tablaTransferencias= document.querySelector("#tabla-pre-transferencias > tbody");
     let nuevaFilaTablaTransferencias = tablaTransferencias.insertRow(-1);
     let fila = `<tr>
-                    <td class="id-transferencias-comprobacion-proforma invisible"></td>
+                    <td class="id_modal invisible"></td>
                     <td>${document.getElementById("sucursal-transferencias").value}</td>
                     <td class="invisible"></td>
                     <td class="insertar input-tablas fondo">${codigoTransferencia}</td>
@@ -161,11 +162,13 @@ async function agregarAtablaPreTransferencias(e){
         };
         document.querySelector(".contenedor-pre-transferencia").classList.add("modal-show-transferencia")
         await buscarPorCodidoTransferenciasOrigen();
-        operarCantidadTransferencias();
+        
         marcarProductoRepetidoTransferencias();
+        saldosTransferencias();
+        operarCantidadTransferencias();
+        
         document.getElementById("id-transferencias").value = ""
         document.getElementById("formulario-transferencias").reset();
-        saldosTransferencias()
         arrayCreacionCategoriaTallasTransferencias = [];
         document.querySelector("#tabla-pre-transferencias > tbody > tr > td:nth-child(8) > input").focus()
     }else if(document.getElementById("sucursal-principal").value ===
@@ -216,30 +219,40 @@ async function buscarPorCodidoTransferenciasOrigen(){
 };
 
 function saldosTransferencias(){
-    const saldosExistenciasEnOrigen = document.querySelectorAll(".id-transferencias-comprobacion-proforma");
+    const saldosExistenciasEnOrigen = document.querySelectorAll(".id_modal");
     saldosExistenciasEnOrigen.forEach((event) => {
         if(event){
-            let sumaDeCantidadesTransferidasPorProducto = 0
-            document.querySelectorAll(".id-transferencias-comprobacion").forEach((elemento) => {
+            let saldo_sucursal_origen = 0;
+            let saldo_sucursal_destino = 0;
+            document.querySelectorAll(".id_proforma").forEach((elemento) => {
                 if(elemento.parentNode.children[3].textContent === event.parentNode.children[3].textContent &&//codigo
                     elemento.parentNode.children[1].textContent === event.parentNode.children[1].textContent &&//sucursal de origen
-                    elemento.parentNode.children[8].textContent != event.parentNode.children[8].textContent){//sucursal de destino
-                    sumaDeCantidadesTransferidasPorProducto += Number(elemento.parentNode.children[7].textContent)//tabla lista de transferencias
-                    event.parentNode.children[5].textContent = Number(event.parentNode.children[5].textContent) - Number(sumaDeCantidadesTransferidasPorProducto)
+                    elemento.parentNode.children[8].textContent !== event.parentNode.children[8].textContent){//sucursal de destino
+                    saldo_sucursal_origen += Number(elemento.parentNode.children[7].textContent)//tabla lista de transferencias
+                    event.parentNode.children[6].textContent = Number(event.parentNode.children[5].textContent) - Number(saldo_sucursal_origen)
+                }
+                if(elemento.parentNode.children[3].textContent === event.parentNode.children[3].textContent &&//codigo
+                    elemento.parentNode.children[1].textContent !== event.parentNode.children[1].textContent &&//sucursal de origen
+                    elemento.parentNode.children[8].textContent === event.parentNode.children[8].textContent){//sucursal de destino
+                    saldo_sucursal_destino += Number(elemento.parentNode.children[7].textContent)//tabla lista de transferencias
+                    event.parentNode.children[10].textContent = Number(saldo_sucursal_destino)
                 }
             });
         };
     });
 };
 function operarCantidadTransferencias(){
-    const cantidadTransferencias = document.querySelectorAll(".insertarNumeroTransferencias");
-    cantidadTransferencias.forEach((e)=>{
+    const cant_trans = document.querySelectorAll(".insertarNumeroTransferencias");
+    cant_trans.forEach((e)=>{
+        let saldo_inicio_origen = e.parentNode.parentNode.children[6].textContent
+        let saldo_inicio_destino = e.parentNode.parentNode.children[10].textContent
+        console.log(saldo_inicio_origen)
         e.addEventListener("keyup",(i)=>{
             i.target.parentNode.parentNode.children[6].textContent = 
-                Number(i.target.parentNode.parentNode.children[5].textContent) - Number(i.target.value);
+                Number(saldo_inicio_origen) - Number(i.target.value);
 
             i.target.parentNode.parentNode.children[10].textContent = 
-                Number(i.target.parentNode.parentNode.children[9].textContent) + Number(i.target.value);
+                Number(saldo_inicio_destino) + Number(i.target.value);
         });
     });
 };
@@ -251,7 +264,7 @@ function filaBodyTransferenciasProformaPincipal(){
             let tablaTransferencias = document.querySelector("#tabla-proforma-transferencias > tbody");
             let nuevaFilaTablaTransferencias = tablaTransferencias.insertRow(-1);
             let fila = `<tr>
-                            <td class="id-transferencias-comprobacion invisible">${event.parentNode.children[0].textContent}</td>
+                            <td class="id_proforma invisible">${event.parentNode.children[0].textContent}</td>
                             <td>${event.parentNode.children[1].textContent}</td>
                             <td class="invisible">${event.parentNode.children[2].textContent}</td>
                             <td>${event.parentNode.children[3].textContent}</td>
