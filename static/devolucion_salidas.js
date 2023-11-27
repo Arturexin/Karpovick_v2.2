@@ -40,18 +40,18 @@ async function crearBodyDevoluciones(){
             let fila = `<tr>
                             <td class="invisible">${event.idSal}</td>
                             <td>${event.sucursal_nombre}</td>
-                            <td class="codigoDevolucionesSalidas" style="background: rgb(105, 211, 35)">${event.codigo}</td>
-                            <td>${event.existencias_salidas}</td>
-                            <td><input class="cantidadADevolverSalidas input-tablas-dos"></td>
+                            <td class="codigoDevolucionesSalidas" style="background: rgb(105, 211, 35); border-radius: 5px">${event.codigo}</td>
+                            <td style="text-align: right">${event.existencias_salidas}</td>
+                            <td><input class="cantidadADevolverSalidas input-tablas-dos-largo"></td>
                             <td class="invisible">${event.precio_venta_salidas}</td>
                             <td>${event.comprobante}</td>
                             <td class="invisible">${event.cliente}</td>
                             <td class="invisible"></td>
                             <td class="invisible"></td>
                             <td class="invisible"></td>
-                            <td>${event.existencias_devueltas}</td>
+                            <td style="text-align: right">${event.existencias_devueltas}</td>
                             <td class="invisible"></td>
-                            <td></td>
+                            <td style="text-align: right"></td>
                             <td class="invisible">${sucursal_id_dev_salidas}</td>
                             <td class="invisible">${sucursal_indice_dev_salidas}</td>
                             <td style="text-align: center">

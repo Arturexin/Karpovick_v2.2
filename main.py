@@ -433,7 +433,7 @@ def getSumaStockSucursal():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-@app.route('/api/almacen_central/<int:idProd>')
+@app.route('/api/almacen_central/<int:idProd>')#Entradas, Productos, Salidas
 @cross_origin()
 @login_required
 def getProductos(idProd):
@@ -483,40 +483,9 @@ def getProductosSucursal(idProd):
         return jsonify(contenido)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
 ###------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-@app.route('/api/almacen_central_id/<int:idProd>')
-@cross_origin()
-@login_required
-def getProductosUno(idProd):
-    try:
-        with mysql.connection.cursor() as cur:
-            query = ("SELECT idProd, categoria, codigo, descripcion, talla, costo_unitario, precio_venta, lote, proveedor, existencias_ac, existencias_su, existencias_sd, existencias_st "
-                     "FROM almacen_central "
-                     "WHERE idProd = %s")
-            cur.execute(query, (idProd,))
-            data = cur.fetchall()
-        contenido = {}
-        for fila in data:
-            contenido = { 
-                'idProd': fila[0],
-                'categoria': fila[1],
-                'codigo': fila[2], 
-                'descripcion': fila[3], 
-                'talla': fila[4],
-                'costo_unitario': fila[5],
-                'precio_venta': fila[6], 
-                'lote':fila[7], 
-                'proveedor': fila[8],
-                'existencias_ac':fila[9],
-                'existencias_su':fila[10],
-                'existencias_sd':fila[11],
-                'existencias_st':fila[12]
-                }
-        return jsonify(contenido)
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-###------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-@app.route('/api/almacen_central_codigo_doble_sucursal/<string:codigo>')
+@app.route('/api/almacen_central_codigo_doble_sucursal/<string:codigo>')#Transferencias
 @cross_origin()
 @login_required
 def getProductosDos(codigo):
@@ -555,7 +524,7 @@ def getProductosDos(codigo):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 ###------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-@app.route('/api/almacen_central_codigo_sucursal/<string:codigo>')#COMPRAS, DEVOLUCIONES, MODIFICACIOIN
+@app.route('/api/almacen_central_codigo_sucursal/<string:codigo>')#COMPRAS, DEVOLUCIONES, MODIFICACIÓN
 @cross_origin()
 @login_required
 def getProductosDosSucursal(codigo):
@@ -591,7 +560,7 @@ def getProductosDosSucursal(codigo):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 ###------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-@app.route('/api/almacen_central', methods=['POST'])
+@app.route('/api/almacen_central', methods=['POST'])##Compras-Registro
 @cross_origin()
 @login_required
 def saveProductos():
@@ -641,53 +610,6 @@ def upDateProductos():
         mysql.connection.rollback()
         return jsonify({"status": "error", "message": str(e)})
 
-@app.route('/api/almacen_central_operacion', methods=['POST'])
-@cross_origin()
-@login_required
-def operacionProductos():
-    try:
-        sucursal_post = request.json['sucursal_post']
-        usuarioLlave = session.get('usernameDos')
-
-        if sucursal_post not in ['existencias_ac', 'existencias_su', 'existencias_sd', 'existencias_st']:
-            return jsonify({"status": "error", "message": "Sucursal no válida"}), 400
-        
-        with mysql.connection.cursor() as cur:
-            query = (f"UPDATE `almacen_central` SET {sucursal_post} = %s "
-                     "WHERE `almacen_central`.`idProd` = %s "
-                     "AND identificadorProd = %s")
-            data = (request.json['existencias_post'], request.json['idProd'], usuarioLlave)
-            cur.execute(query, data)
-            mysql.connection.commit()
-        return jsonify({"status": "success", "message": "Catidades actualizadas correctamente."}), 200
-    except Exception as e:
-        mysql.connection.rollback()
-        return jsonify({"status": "error", "message": str(e)}), 500
-    
-@app.route('/api/almacen_central_doble_operacion', methods=['POST'])
-@cross_origin()
-@login_required
-def operacionProductosDoble():
-    try:
-        sucursal_post = request.json['sucursal_post']
-        sucursal_post_dos = request.json['sucursal_post_dos']
-        usuarioLlave = session.get('usernameDos')
-
-        if sucursal_post and sucursal_post_dos not in ['existencias_ac', 'existencias_su', 'existencias_sd', 'existencias_st']:
-            return jsonify({"status": "error", "message": "Sucursal no válida"}), 400
-        
-        with mysql.connection.cursor() as cur:
-            query = (f"UPDATE `almacen_central` SET {sucursal_post} = %s,  {sucursal_post_dos} = %s"
-                     "WHERE `almacen_central`.`idProd` = %s "
-                     "AND identificadorProd = %s")
-            data = (request.json['existencias_post'], request.json['existencias_post_dos'], request.json['idProd'], usuarioLlave)
-            cur.execute(query, data)
-            mysql.connection.commit()
-        return jsonify({"status": "success", "message": "Catidades actualizadas correctamente."}), 200
-    except Exception as e:
-        mysql.connection.rollback()
-        return jsonify({"status": "error", "message": str(e)}), 500
-
 @app.route('/api/almacen_central/<int:idProd>', methods=['DELETE'])
 @cross_origin()
 @login_required
@@ -701,7 +623,7 @@ def removeProductos(idProd):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/procesar_transferencia', methods=['POST'])##Transferencias
+@app.route('/api/procesar_transferencia', methods=['POST'])##Transferencias, Productos
 @cross_origin()
 @login_required
 def operarTransferencia():
@@ -1125,7 +1047,7 @@ def getEntradasCodigoKardex(codigo):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/entradas_comprobante/<string:comprobante>')
+@app.route('/api/entradas_comprobante/<string:comprobante>')#Devolución Compras
 @cross_origin()
 @login_required
 def getEntradasComprobante(comprobante):
@@ -1212,7 +1134,7 @@ def removeEntradas(idEntr):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/procesar_devolucion_compras', methods=['POST'])##Devolición por compras
+@app.route('/api/procesar_devolucion_compras', methods=['POST'])##Devolución por compras
 @cross_origin()
 @login_required
 def operarRecompra():
@@ -1252,7 +1174,7 @@ def operarRecompra():
         mysql.connection.rollback()
         return jsonify({"status": "error", "message": str(e)}), 500
 
-@app.route('/api/procesar_recompra', methods=['POST'])##Compras
+@app.route('/api/procesar_recompra', methods=['POST'])##Recompras
 @cross_origin()
 @login_required
 def operarDevolucionCompra():
@@ -1284,6 +1206,46 @@ def operarDevolucionCompra():
     except Exception as e:
         mysql.connection.rollback()
         return jsonify({"status": "error", "message": str(e)}), 500
+    
+@app.route('/api/procesar_nuevo_producto', methods=['GET', 'POST'])##Compras-Registro
+@cross_origin()
+@login_required
+def operarNuevoProducto():
+    try:
+        usuarioLlave = session.get('usernameDos')
+        usuarioId = session.get('identificacion_usuario')
+        current_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        with mysql.connection.cursor() as cur:
+            query_productos = ("INSERT INTO `almacen_central` "
+                     "(`idProd`, `categoria`, `codigo`, `descripcion`, `talla`, `costo_unitario`, `precio_venta`, `lote`, `proveedor`, `existencias_ac`, `existencias_su`, `existencias_sd`, `existencias_st`, `identificadorProd`) "
+                     "VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
+            data_productos = (request.json['categoria'], request.json['codigo'], request.json['descripcion'], request.json['talla'],
+                    request.json['costo_unitario'], request.json['precio_venta'], request.json['lote'], request.json['proveedor'],
+                    request.json['existencias_ac'], request.json['existencias_su'], request.json['existencias_sd'],
+                    request.json['existencias_st'], usuarioLlave)
+            cur.execute(query_productos, data_productos)
+            mysql.connection.commit()
+
+            query_productos_busqueda = ("SELECT idProd, codigo "
+                    "FROM almacen_central "
+                    "WHERE `identificadorProd` = %s "
+                    "AND codigo LIKE %s "
+                    "ORDER BY idProd DESC;")
+            data_productos_busqueda = (usuarioLlave, request.json['codigo'])
+            cur.execute(query_productos_busqueda, data_productos_busqueda)
+            data_productos_busqueda = cur.fetchall()[0][0]
+
+            query_entradas = ("INSERT INTO `entradas` "
+                            "(`idEntr`, `idProd`, `sucursal`, `existencias_entradas`, `comprobante`, `causa_devolucion`, `usuario`, `fecha`, `existencias_devueltas`, `identificadorEntr`) "
+                            "VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
+            data_entradas = (data_productos_busqueda, request.json['sucursal'], request.json['existencias_entradas'], request.json['comprobante'], 0, 
+                            usuarioId, current_date, 0, usuarioLlave)
+            cur.execute(query_entradas, data_entradas)
+            mysql.connection.commit()
+        return jsonify({"status": "success", "message": "Producto creado correctamente."})
+    except Exception as e:
+        mysql.connection.rollback()
+        return jsonify({"status": "error", "message": str(e)})
 ##########################################################################################################################################################################
 # Datos de la tabla SALIDAS y base de datos salidas
 ##########################################################################################################################################################################
@@ -1380,7 +1342,7 @@ def getAllSalidas(numero):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     
-@app.route('/api/salidas_tabla_reporte')
+@app.route('/api/salidas_tabla_reporte')#Salidas, Ventas
 @cross_origin()
 @login_required
 def getAllSalidasReporte():
@@ -1801,7 +1763,7 @@ def getCodigoSucursalSalidas():
         return jsonify({'error': str(e)}), 500
     
 ####----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-@app.route('/api/salidas/<int:idSal>')
+@app.route('/api/salidas/<int:idSal>')#Salidas
 @cross_origin()
 @login_required
 def getSalidas(idSal):
@@ -1939,7 +1901,7 @@ def getSalidasCodigoKardex(codigo):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     
-@app.route('/api/salidas_comprobante/<string:comprobante>')#DEVOLUCION SALIDAS
+@app.route('/api/salidas_comprobante/<string:comprobante>')#DEVOLUCION, Detalle ventas
 @cross_origin()
 @login_required
 def getSalidasComprobante(comprobante):

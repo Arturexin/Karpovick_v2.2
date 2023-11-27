@@ -146,12 +146,12 @@ function crearBodyRegistro(tallaRegistro, loteRegistro){
                     <td>${document.getElementById("sucursal-modificacion").value}</td>
                     <td>${document.getElementById("categoria-modificacion").children[document.getElementById("categoria-modificacion").selectedIndex].textContent}</td>
                     <td class="codigo_modal" style="background: rgb(105, 211, 35)">${document.getElementById("codigo-modificacion").value + "-" + tallaRegistro + "-" + loteRegistro}</td>
-                    <td><input class="input-tablas-texto-largo" value="${document.getElementById("descripcion-modificacion").value}"></td>
+                    <td><input class="input-tablas-texto-largo" value="${document.getElementById("descripcion-modificacion").value}" placeholder="Rellene esta celda"></td>
                     <td>${tallaRegistro}</td>
-                    <td><input class="input-tablas-dos-largo existencias-modificacion"></td>
-                    <td><input class="input-tablas-dos-largo costo-unitario-modificacion" value="${(Number(document.getElementById("pcompra-modificacion").value)).toFixed(2)}"></td>
+                    <td><input class="input-tablas-dos-largo existencias-modificacion" placeholder="valor >= 0"></td>
+                    <td><input class="input-tablas-dos-largo costo-unitario-modificacion" value="${(Number(document.getElementById("pcompra-modificacion").value)).toFixed(2)}" placeholder="valor >= 0"></td>
                     <td style="text-align: right"></td>
-                    <td><input class="input-tablas-dos-largo" value="${(Number(document.getElementById("pventa-modificacion").value)).toFixed(2)}"></td>
+                    <td><input class="input-tablas-dos-largo" value="${(Number(document.getElementById("pventa-modificacion").value)).toFixed(2)}" placeholder="valor >= C"></td>
                     <td>${document.getElementById("lote-modificacion").value}</td>
                     <td>${document.getElementById("proveedor-modificacion").value}</td>
                     <td class="invisible"></td>
@@ -218,10 +218,19 @@ function agregarNuevoProductoATablaModificacion(e){
 function filaBodyProformaPincipal(){
     const fila_modal = document.querySelectorAll(".codigo_modal");
     fila_modal.forEach((event)=>{
-        if(Number(event.parentNode.children[8].textContent) >= 0 &&
-        event.parentNode.children[4].children[0].value != "" &&
-        Number(event.parentNode.children[9].children[0].value) > 0 &&
-        event.parentNode.children[11].textContent != ""){
+
+        event.parentNode.children[6].children[0].style.background = ""
+        event.parentNode.children[7].children[0].style.background = ""
+        event.parentNode.children[9].children[0].style.background = ""
+        event.parentNode.children[4].children[0].style.background = ""
+        
+        if(Number(event.parentNode.children[6].children[0].value) >= 0 &&
+        event.parentNode.children[6].children[0].value !== "" &&
+        Number(event.parentNode.children[7].children[0].value) >= 0 &&
+        event.parentNode.children[7].children[0].value !== "" &&
+        event.parentNode.children[4].children[0].value !== "" &&
+        Number(event.parentNode.children[9].children[0].value) >= Number(event.parentNode.children[7].children[0].value) &&
+        event.parentNode.children[9].children[0].value !== ""){
             let fila_principal = document.querySelector("#tabla-proforma-modificacion > tbody");
             let nueva_fila_principal = fila_principal.insertRow(-1);
             let fila = `<tr>
@@ -247,6 +256,17 @@ function filaBodyProformaPincipal(){
                     </tr>
                     `
             nueva_fila_principal.innerHTML = fila;
+        }else if(Number(event.parentNode.children[6].children[0].value) < 0 ||
+        event.parentNode.children[6].children[0].value === ""){
+            event.parentNode.children[6].children[0].style.background = "#b36659"
+        }else if(Number(event.parentNode.children[7].children[0].value) < 0 ||
+        event.parentNode.children[7].children[0].value === ""){
+            event.parentNode.children[7].children[0].style.background = "#b36659"
+        }else if(Number(event.parentNode.children[9].children[0].value) < Number(event.parentNode.children[7].children[0].value) ||
+        event.parentNode.children[9].children[0].value === ""){
+            event.parentNode.children[9].children[0].style.background = "#b36659"
+        }else if(event.parentNode.children[4].children[0].value === ""){
+            event.parentNode.children[4].children[0].style.background = "#b36659"
         };
     });
     eliminarFilaCompras()
@@ -254,15 +274,19 @@ function filaBodyProformaPincipal(){
 const procesarIngresarNuevo = document.getElementById("procesar-modificacion-uno");
 procesarIngresarNuevo.addEventListener("click", (e) => {
     e.preventDefault();
+    
     removerCodigoRepetido(".codigo_modal", ".codigo_proforma", 6)
     filaBodyProformaPincipal()
-    const borrar = document.querySelectorAll(".existencias-modificacion");//eliminamos las filas que si pasaron a la tabla principal
+    const borrar = document.querySelectorAll(".existencias-modificacion");//eliminamos las filas de la tabla modal que si pasaron a la tabla principal
     borrar.forEach((e)=>{
-        if(e.value >= 0){
+        if(Number(e.value) >= 0 && e.value !== "" && 
+        Number(e.parentNode.parentNode.children[7].children[0].value) >= 0 && 
+        e.parentNode.parentNode.children[7].children[0].value !== "" &&
+        Number(e.parentNode.parentNode.children[9].children[0].value) >= Number(e.parentNode.parentNode.children[7].children[0].value) && 
+        e.parentNode.parentNode.children[9].children[0].value !== "" &&
+        e.parentNode.parentNode.children[4].children[0].value !== ""){
             e.parentNode.parentNode.remove();
-        }else{
-            e.style.background = "#b36659"
-        };
+        }
     });
     if(document.querySelector("#tabla-pre-modificacion > tbody").children.length == 0){
         document.querySelector(".contenedor-pre-modificacion").classList.remove("modal-show-modificacion")
@@ -280,7 +304,7 @@ async function procesamientoRegistros(e){
     try{
         if(document.querySelector("#tabla-proforma-modificacion > tbody").children.length > 0){
             modal_proceso_abrir("Procesando el traspaso!!!.", "")
-            await funcionRegistrosProductos();
+            await realizarRegistro();
         };
     }catch(error){
         modal_proceso_abrir("Ocurrió un error. " + error, "")
@@ -288,9 +312,9 @@ async function procesamientoRegistros(e){
         modal_proceso_salir_botones()
     };
 };
-async function funcionRegistrosProductos(){
+async function realizarRegistro(){
     let suma_productos = 0;
-    function EnviarRegistroAProductos(a){
+    function DatosRegistro(a){
         let array = [0,0,0,0]
 
         this.categoria= a.children[16].textContent;
@@ -311,12 +335,16 @@ async function funcionRegistrosProductos(){
         this.existencias_su = array[1];
         this.existencias_sd = array[2];
         this.existencias_st = array[3];
+
+        this.sucursal = a.children[13].textContent;
+        this.comprobante = "Traspaso";
+        this.existencias_entradas = a.children[6].textContent;
     };
     let numFilas = document.querySelector("#tabla-proforma-modificacion > tbody").children;
     for(let i = 0 ; i < numFilas.length; i++ ){
         if(numFilas[i]){
-            let filaRegistro = new EnviarRegistroAProductos(numFilas[i]);
-            let url = URL_API_almacen_central + 'almacen_central'
+            let filaRegistro = new DatosRegistro(numFilas[i]);
+            let url = URL_API_almacen_central + 'procesar_nuevo_producto'
             let response = await funcionFetch(url, filaRegistro)
             console.log("Respuesta Productos "+response.status)
             if(response.status === 200){
@@ -327,89 +355,17 @@ async function funcionRegistrosProductos(){
         };
     };
     if(suma_productos === numFilas.length){
-        await encontrarIdProductosRegistro();
+        modal_proceso_abrir("Operación completada exitosamente.", "")
+        modal_proceso_salir_botones()
+        document.querySelector("#tabla-proforma-modificacion  > tbody").remove();
+        document.querySelector("#tabla-proforma-modificacion ").createTBody();
+        await cargarDatosProductosCCD();
+        localStorage.setItem("base_datos_consulta", JSON.stringify(productosCCD))
     }else{
         modal_proceso_abrir(`Ocurrió un problema en la fila ${suma_productos + 1}`, `Producto ejecutado: ${suma_productos} de ${numFilas.length}`)
         console.log(`Producto ejecutado: ${suma_productos} de ${numFilas.length}`)
         modal_proceso_salir_botones()
     };
-};
-async function encontrarIdProductosRegistro(){//busca el id del nuevo producto el almacén central para grabar la compra en entradas
-    let suma_id_productos = 0;
-    let codigoNuevo;
-    let codigoComparador = document.querySelectorAll(".codigo_proforma")
-    for(cod of codigoComparador){
-        let url = URL_API_almacen_central + `almacen_central_codigo_sucursal/${cod.textContent}?`+
-                                            `sucursal_get=${sucursales_activas[indice_sucursal_modificacion]}`
-        let respuesta  = await fetch(url, {
-            "method": 'GET',
-            "headers": {
-                "Content-Type": 'application/json'
-            }
-        });
-        console.log("Respuesta busqueda id "+respuesta.status)
-        if(respuesta.ok){
-            codigoNuevo = await respuesta.json();
-            cod.parentNode.children[12].textContent = codigoNuevo.idProd
-            suma_id_productos +=1;
-            modal_proceso_abrir("Procesando el traspaso!!!.", `Buscando nuevos códigos: ${suma_id_productos} de ${codigoComparador.length}`)
-            console.log(`Buscando nuevos códigos: ${suma_id_productos} de ${codigoComparador.length}`)
-        };
-    };
-    if(suma_id_productos === codigoComparador.length){
-        await funcionRegistrosEntradas();
-    }else{
-        modal_proceso_abrir(`Ocurrió un problema en la fila ${suma_id_productos + 1}`, `Buscando nuevos códigos: ${suma_id_productos} de ${codigoComparador.length}`)
-        console.log(`Buscando nuevos códigos: ${suma_id_productos} de ${codigoComparador.length}`)
-        modal_proceso_salir_botones()
-    };
-};
-async function funcionRegistrosEntradas(){
-    let suma_entradas = 0;
-    function EnviarAEntradas(a){
-        this.idProd = a.children[12].textContent;
-        this.sucursal = a.children[13].textContent;
-        this.causa_devolucion = 0;
-        this.fecha = fechaPrincipal;
-        this.comprobante = "Traspaso";
-        this.existencias_entradas = a.children[6].textContent;
-        this.usuario = document.getElementById("identificacion_usuario_id").textContent;
-        this.existencias_devueltas = 0;
-    };
-    let numFilas = document.querySelector("#tabla-proforma-modificacion > tbody").children;
-    for(let i = 0 ; i < numFilas.length; i++ ){
-        if(Number(numFilas[i].children[12].textContent) > 0 &&
-        Number(numFilas[i].children[6].textContent) > 0){
-            let filaUnoEntradas = new EnviarAEntradas(numFilas[i]);
-            let urlCompraEntradas = URL_API_almacen_central + 'entradas'
-            let response = await funcionFetch(urlCompraEntradas, filaUnoEntradas)
-            console.log("Respuesta Entradas "+response.status)
-            if(response.status === 200){
-                suma_entradas +=1;
-                modal_proceso_abrir("Procesando el traspaso!!!.", `Producto ejecutado en entradas: ${suma_entradas} de ${numFilas.length}`)
-                console.log(`Producto ejecutado en entradas: ${suma_entradas} de ${numFilas.length}`)
-            }
-        };
-    };
-    if(suma_entradas === numFilas.length){
-        modal_proceso_abrir("Operación completada exitosamente.", "")
-        modal_proceso_salir_botones()
-        document.querySelector("#tabla-proforma-modificacion  > tbody").remove();
-        document.querySelector("#tabla-proforma-modificacion ").createTBody();
-        await cargarDatosProductosCCD();
-        localStorage.setItem("base_datos_consulta", JSON.stringify(productosCCD))
-    }else if(suma_entradas == 0){
-        modal_proceso_abrir("Operación completada exitosamente.", "")
-        modal_proceso_salir_botones()
-        document.querySelector("#tabla-proforma-modificacion  > tbody").remove();
-        document.querySelector("#tabla-proforma-modificacion ").createTBody();
-        await cargarDatosProductosCCD();
-        localStorage.setItem("base_datos_consulta", JSON.stringify(productosCCD))
-    }else{
-        modal_proceso_abrir(`Ocurrió un problema en la fila ${suma_entradas + 1}`, "")
-        modal_proceso_salir_botones()
-    };
-    
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////MODIFICACION DE PRODUCTOS/////////////////////////////////////////////////////////////////////////
@@ -464,14 +420,14 @@ function crearBodyModificacion(codigoModificacion){
                         <select class="categoria_cambio">
                         </select>
                     </td>
-                    <td><input class="codigo_modal input-tablas" value="${codigoModificacion}"></td>
-                    <td><input class="input-tablas-texto-largo"></td>
+                    <td><input class="codigo_modal input-tablas" value="${codigoModificacion}" placeholder="Rellene esta celda"></td>
+                    <td><input class="input-tablas-texto-largo" placeholder="Rellene esta celda"></td>
                     <td></td>
-                    <td><input class="existencias-modificacion input-tablas-dos-largo"></td>
-                    <td><input class="costo-unitario-modificacion input-tablas-dos-largo"></td>
+                    <td><input class="existencias-modificacion input-tablas-dos-largo" placeholder="Valor >= 0"></td>
+                    <td><input class="costo-unitario-modificacion input-tablas-dos-largo" placeholder="Valor >= 0"></td>
                     <td style="text-align: right"></td>
-                    <td><input class="input-tablas-dos-largo"></td>
-                    <td><input class="input-tablas-dos"></td>
+                    <td><input class="input-tablas-dos-largo" placeholder="Valor >= C"></td>
+                    <td><input class="input-tablas-dos" placeholder="Valor > 0"></td>
 
                     <td>
                         <select class="proveedor_cambio">
@@ -629,22 +585,49 @@ procesarModificar.addEventListener("click", (e) => {
     e.preventDefault();
     removerModificacionRepetido();
     filaBodyProformaPincipalDos();
-
-    document.querySelector("#tabla-pre-modificacion > tbody").remove();
-    document.querySelector("#tabla-pre-modificacion").createTBody();
+    const borrar = document.querySelectorAll(".codigo_modal");//eliminamos las filas de la tabla modal que si pasaron a la tabla principal
+    borrar.forEach((event)=>{
+        if(event.value !== "" &&
+        event.parentNode.parentNode.children[4].children[0].value !== "" &&
+        Number(event.parentNode.parentNode.children[6].children[0].value) >= 0 &&
+        event.parentNode.parentNode.children[6].children[0].value !== "" &&
+        Number(event.parentNode.parentNode.children[7].children[0].value) >= 0 &&
+        event.parentNode.parentNode.children[7].children[0].value !== "" &&
+        Number(event.parentNode.parentNode.children[9].children[0].value) >= Number(event.parentNode.parentNode.children[7].children[0].value) &&
+        event.parentNode.parentNode.children[9].children[0].value !== "" &&
+        Number(event.parentNode.parentNode.children[10].children[0].value) > 0 &&
+        event.parentNode.parentNode.children[10].children[0].value !== ""){
+            event.parentNode.parentNode.remove();
+        }
+    });
+    if(document.querySelector("#tabla-pre-modificacion > tbody").children.length == 0){
+        document.querySelector(".contenedor-pre-modificacion").classList.remove("modal-show-modificacion")
+    };
     document.getElementById("formulario-modificacion").reset()
     document.getElementById("id-modificacion").value = ""
-    document.querySelector(".contenedor-pre-modificacion").classList.remove("modal-show-modificacion");
     document.getElementById("buscador-productos-modificacion").focus();
 });
 function filaBodyProformaPincipalDos(){
-    
     const fila_modal = document.querySelectorAll(".codigo_modal");
     fila_modal.forEach((event)=>{
-        if(Number(event.parentNode.parentNode.children[8].textContent) >= 0 &&
-        event.parentNode.parentNode.children[4].children[0].value != "" &&
-        Number(event.parentNode.parentNode.children[9].children[0].value) > 0 &&
-        event.parentNode.parentNode.children[11].children[0].value != ""){
+
+        event.style.background = ""
+        event.parentNode.parentNode.children[4].children[0].style.background = ""
+        event.parentNode.parentNode.children[6].children[0].style.background = ""
+        event.parentNode.parentNode.children[7].children[0].style.background = ""
+        event.parentNode.parentNode.children[9].children[0].style.background = ""
+        event.parentNode.parentNode.children[10].children[0].style.background = ""
+
+        if(event.value !== "" &&
+        event.parentNode.parentNode.children[4].children[0].value !== "" &&
+        Number(event.parentNode.parentNode.children[6].children[0].value) >= 0 &&
+        event.parentNode.parentNode.children[6].children[0].value !== "" &&
+        Number(event.parentNode.parentNode.children[7].children[0].value) >= 0 &&
+        event.parentNode.parentNode.children[7].children[0].value !== "" &&
+        Number(event.parentNode.parentNode.children[9].children[0].value) >= Number(event.parentNode.parentNode.children[7].children[0].value) &&
+        event.parentNode.parentNode.children[9].children[0].value !== "" &&
+        Number(event.parentNode.parentNode.children[10].children[0].value) > 0 &&
+        event.parentNode.parentNode.children[10].children[0].value !== ""){
             let fila_principal = document.querySelector("#tabla-proforma-modificacion > tbody");
             let nueva_fila_principal = fila_principal.insertRow(-1);
             let fila = `<tr>
@@ -670,9 +653,25 @@ function filaBodyProformaPincipalDos(){
                         </tr>
                         `
             nueva_fila_principal.innerHTML = fila;
-            eliminarFilaCompras()
+        }else if(event.value === ""){
+            event.style.background = "#b36659"
+        }else if(event.parentNode.parentNode.children[4].children[0].value === ""){
+            event.parentNode.parentNode.children[4].children[0].style.background = "#b36659"
+        }else if(Number(event.parentNode.parentNode.children[6].children[0].value) < 0 ||
+        event.parentNode.parentNode.children[6].children[0].value === ""){
+            event.parentNode.parentNode.children[6].children[0].style.background = "#b36659"
+        }else if(Number(event.parentNode.parentNode.children[7].children[0].value) < 0 ||
+        event.parentNode.parentNode.children[7].children[0].value === ""){
+            event.parentNode.parentNode.children[7].children[0].style.background = "#b36659"
+        }else if(Number(event.parentNode.parentNode.children[9].children[0].value) < 0 ||
+        event.parentNode.parentNode.children[9].children[0].value === ""){
+            event.parentNode.parentNode.children[9].children[0].style.background = "#b36659"
+        }else if(Number(event.parentNode.parentNode.children[10].children[0].value) <= 0 ||
+        event.parentNode.parentNode.children[10].children[0].value === ""){
+            event.parentNode.parentNode.children[10].children[0].style.background = "#b36659"
         };
     });
+    eliminarFilaCompras()
 };
 const procesarModificacionAProductos = document.getElementById("procesar-modificacion-principal");
 procesarModificacionAProductos.addEventListener("click", mandarModificacionAProductos)

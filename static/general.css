@@ -78,6 +78,29 @@ caption {
     align-items: center;
     justify-content: center;
 }
+.tabla_modal{
+    margin: 0px auto;
+    background-color: var(--fondo-principal);
+    border: 3px solid var(--fondo-principal);
+    border-radius: 14px;
+    font-size: 15px;
+}
+.tabla_modal th, .tabla_modal td {
+    padding: 2px;
+}
+.tabla_modal tr:nth-child(even){
+    background-color: var(--fondo-terciario);}
+    .tabla_modal tr:hover {
+    background-color: var(--fondo-cuaternario);
+}
+.tabla_modal th {
+	background: var(--fondo-secundario);
+    border-radius: 10px;
+	color: var(--color-secundario);
+	font-family:Arial;
+	font-size:16px;
+	padding:7px 0px;
+}
 .tabla-proforma {
     width: 100%;
     margin: 0px auto;
@@ -104,6 +127,7 @@ caption {
 }
 .input-tablas{
     width: 100px;
+    height: 18px;
     margin: 0px 5px;
     border-radius: 5px;
     border: none;
@@ -111,6 +135,7 @@ caption {
 }
 .input-tablas-texto-largo{
     width: 190px;
+    height: 18px;
     margin: 0px 5px;
     border-radius: 5px;
     border: none;
@@ -118,6 +143,7 @@ caption {
 }
 .input-tablas-dos{
     text-align: end;
+    height: 18px;
     width: 40px;
     margin: 0px 5px;
     border-radius: 5px;
@@ -126,7 +152,8 @@ caption {
 }
 .input-tablas-dos-largo{
     text-align: end;
-    width: 62px;
+    height: 18px;
+    width: 70px;
     margin: 0px 5px;
     border-radius: 5px;
     border: none;

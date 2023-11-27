@@ -91,11 +91,11 @@ function crearBodyTransferencias (codigoTransferencia){
                     <td class="id_modal invisible"></td>
                     <td>${document.getElementById("sucursal-transferencias").value}</td>
                     <td class="invisible"></td>
-                    <td class="insertar input-tablas fondo">${codigoTransferencia}</td>
+                    <td class="insertar input-tablas" style="border-radius: 5px">${codigoTransferencia}</td>
                     <td></td>
                     <td class="invisible"></td>
                     <td style="text-align: right"></td>
-                    <td><input class="input-tablas-dos-largo insertarNumeroTransferencias"></td>
+                    <td><input class="input-tablas-dos-largo insertarNumeroTransferencias" placeholder="Valor > 0"></td>
                     <td>${document.getElementById("sucursal-destino-transferencias")[indice_sucursal_transferencias_dos].textContent}</td>
                     <td style="text-align: right"></td>
                     <td style="text-align: right"></td>
@@ -259,7 +259,11 @@ function operarCantidadTransferencias(){
 function filaBodyTransferenciasProformaPincipal(){
     let fila_modal = document.querySelectorAll(".insertar");
     fila_modal.forEach((event)=>{
+
+        event.parentNode.children[7].children[0].style.background = ""
+
         if(Number(event.parentNode.children[7].children[0].value) > 0 &&
+        event.parentNode.children[7].children[0].value !== 0 &&
         Number(event.parentNode.children[6].textContent) >= 0){
             let tablaTransferencias = document.querySelector("#tabla-proforma-transferencias > tbody");
             let nuevaFilaTablaTransferencias = tablaTransferencias.insertRow(-1);
@@ -289,7 +293,8 @@ function filaBodyTransferenciasProformaPincipal(){
             nuevaFilaTablaTransferencias.innerHTML = fila;
             event.parentNode.children[7].children[0].style.background = ""
             eliminarFilaTransferencias()
-        }else if(Number(event.parentNode.children[7].children[0].value) <= 0){
+        }else if(Number(event.parentNode.children[7].children[0].value) <= 0 &&
+        event.parentNode.children[7].children[0].value === 0){
             event.parentNode.children[7].children[0].style.background = "#b36659"
         }else if(Number(event.parentNode.children[6].textContent) < 0){
             alert("La cantidad a transferir supera las existencias en la sucursal de origen.")
@@ -306,7 +311,7 @@ function agregarAtablaTransferenciasPrincipal(e){
     filaBodyTransferenciasProformaPincipal();
     const borrar = document.querySelectorAll(".insertarNumeroTransferencias");//eliminamos las filas que si pasaron a la tabla principal
     borrar.forEach((e)=>{
-        if(e.parentNode.parentElement.children[6].textContent >= 0 && e.value > 0){
+        if(e.parentNode.parentElement.children[6].textContent >= 0 && e.value > 0 && e.value !== ""){
             e.parentNode.parentNode.remove()
         }
     })

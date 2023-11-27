@@ -160,7 +160,7 @@ function crearHeadCompra(){
                 <tr class="tbody_preproforma">
                     <th style="width: 120px;">Sucursal</th>
                     <th style="width: 120px;">Categoría</th>
-                    <th style="width: 70px;">Código</th>
+                    <th style="width: 120px;">Código</th>
                     <th style="width: 200px;">Descripción</th>
                     <th style="width: 70px;">Talla</th>
                     <th style="width: 70px;">Cantidad a Comprar</th>
@@ -180,13 +180,13 @@ function crearBodyCompras (tallaAComprar, loteAComprar){
                     <td>${document.getElementById("sucursal-compras").value}</td>
                     <td>${document.getElementById("categoria-compras").children[document.getElementById("categoria-compras").selectedIndex].textContent}</td>
                     <td class="codigo_compras_modal input-tablas fondo" style="background: rgb(105, 211, 35)">${document.getElementById("codigo-compras").value}-${tallaAComprar}-${loteAComprar}</td>
-                    <td><input class="input-tablas-texto-largo" value="${document.getElementById("descripcion-compras").value}"></td>
+                    <td><input class="input-tablas-texto-largo" value="${document.getElementById("descripcion-compras").value}" placeholder="Rellene esta casilla"></td>
                     <td>${tallaAComprar}</td>
                     <td class="invisible"></td>
-                    <td><input class="input-tablas-dos-largo insertarNumero"></td>
-                    <td><input class="input-tablas-dos-largo insertarCosto" value="${(Number(document.getElementById("costo-compras").value)).toFixed(2)}"></td>
+                    <td><input class="input-tablas-dos-largo insertarNumero" placeholder="Valor > 0"></td>
+                    <td><input class="input-tablas-dos-largo insertarCosto" value="${(Number(document.getElementById("costo-compras").value)).toFixed(2)}" placeholder="Valor >= 0"></td>
                     <td style="text-align: right"></td>
-                    <td><input class="input-tablas-dos-largo" value="${(Number(document.getElementById("precio-compras").value)).toFixed(2)}"></td>
+                    <td><input class="input-tablas-dos-largo" value="${(Number(document.getElementById("precio-compras").value)).toFixed(2)}" placeholder="Valor >= C"></td>
                     <td class="invisible">${document.getElementById("lote-compras").value}</td>
                     <td class="invisible">${document.getElementById("proveedor-compras").value}</td>
                     <td class="invisible"></td>
@@ -277,21 +277,17 @@ function mandarATablaPrincipalCompras(e){
     e.preventDefault();
     removerCodigoRepetido(".codigo_compras_modal", ".codigo_compras_proforma", 7)
     filaBodyProformaPincipal()
-    const borrarNumero = document.querySelectorAll(".insertarNumero");//eliminamos las filas que si pasaron a la tabla principal
-    borrarNumero.forEach((e)=>{
-        if(Number(e.value) > 0 && Number(e.parentNode.parentNode.children[8].children[0].value) > 0 &&
-            Number(e.parentNode.parentNode.children[8].children[0].value) < 
-            Number(e.parentNode.parentNode.children[10].children[0].value)){
-            e.parentNode.parentNode.remove()
-        }else if(e.value > 0){
-            e.style.background = ""
-        }else if(e.parentNode.parentNode.children[8].children[0].value > 0){
-            e.parentNode.parentNode.children[8].children[0].style.background = ""
-        }else if(Number(e.parentNode.parentNode.children[8].children[0].value) < 
-                Number(e.parentNode.parentNode.children[10].children[0].value)){
-            e.parentNode.parentNode.children[8].children[0].style.background = ""
-            e.parentNode.parentNode.children[10].children[0].style.background = ""
-        };
+    const borrarNumero = document.querySelectorAll(".codigo_compras_modal");//eliminamos las filas que si pasaron a la tabla principal
+    borrarNumero.forEach((event)=>{
+        if(event.parentNode.children[4].children[0].value !== "" &&
+        Number(event.parentNode.children[7].children[0].value) > 0 &&
+        event.parentNode.children[7].children[0].value !== "" &&
+        Number(event.parentNode.children[8].children[0].value) >= 0 &&
+        event.parentNode.children[8].children[0].value !== "" &&
+        Number(event.parentNode.children[10].children[0].value) >= Number(event.parentNode.children[8].children[0].value) &&
+        event.parentNode.children[10].children[0].value !== ""){
+            event.parentNode.remove()
+        }
     });
     if(document.querySelector("#tabla_modal > tbody").children.length == 0){
         document.querySelector(".contenedor-pre-recompra").classList.remove("modal-show")
@@ -321,7 +317,7 @@ async function procesamientoCompras(e){
             modal_proceso_abrir("Procesando la compra!!!.", "")
             let obteniendo_numeracion = await cargarNumeracionComprobante();
             if(obteniendo_numeracion.status === 200){
-                await funcionComprasProductos()
+                await realizarCompra()
                 document.querySelector("#tabla_principal > tbody").remove();
                 document.querySelector("#tabla_principal").createTBody();
             }else{
@@ -335,6 +331,57 @@ async function procesamientoCompras(e){
         modal_proceso_salir_botones()
     };
 };
+async function realizarCompra(){
+    let suma_productos = 0;
+    function DatosCompras(a){
+        let array = [0,0,0,0]
+
+        this.categoria = a.children[16].textContent;
+        this.codigo = a.children[3].textContent;
+        this.costo_unitario = a.children[7].textContent;
+        this.descripcion = a.children[4].textContent;
+        this.lote = a.children[10].textContent;
+        this.precio_venta = a.children[9].textContent;
+        this.proveedor = a.children[11].textContent; //llave de vinculación
+        this.talla = a.children[5].textContent;
+
+        for(let i = 0; i < array.length; i++){
+            if(a.children[14].textContent == i){
+                array[i] = a.children[6].textContent
+            };
+        };
+        this.existencias_ac = array[0];
+        this.existencias_su = array[1];
+        this.existencias_sd = array[2];
+        this.existencias_st = array[3];
+
+        this.sucursal = a.children[13].textContent;
+        this.comprobante = "Compra-" + (Number(numeracion[0].compras) + 1);
+        this.existencias_entradas = a.children[6].textContent;
+    };
+    let numFilas = document.querySelector("#tabla_principal > tbody").children;
+    for(let i = 0 ; i < numFilas.length; i++ ){
+        if(numFilas[i]){
+            let filaUno = new DatosCompras(numFilas[i]);
+            let urlCompraProductos = URL_API_almacen_central + 'procesar_nuevo_producto'
+            let response = await funcionFetch(urlCompraProductos, filaUno)
+            console.log("Respuesta Productos "+response.status)
+            if(response.status === 200){
+                suma_productos +=1;
+                modal_proceso_abrir("Procesando la compra!!!.", `Producto ejecutado: ${suma_productos} de ${numFilas.length}`)
+                console.log(`Producto ejecutado: ${suma_productos} de ${numFilas.length}`)
+            }
+        };
+    };
+    if(suma_productos === numFilas.length){
+        await funcionComprasNumeracion();
+    }else{
+        modal_proceso_abrir(`Ocurrió un problema en la fila ${suma_productos + 1}`, `Producto ejecutado: ${suma_productos} de ${numFilas.length}`)
+        console.log(`Producto ejecutado: ${suma_productos} de ${numFilas.length}`)
+        modal_proceso_salir_botones()
+    };
+};
+
 async function funcionComprasProductos(){
     let suma_productos = 0;
     function EnviarAProductos(a){
@@ -514,7 +561,7 @@ function crearHeadRecompra(){
                 <tr class="tbody_preproforma">
                     <th style="width: 120px;">Sucursal</th>
                     <th style="width: 120px;">Categoría</th>
-                    <th style="width: 70px;">Código</th>
+                    <th style="width: 120px;">Código</th>
                     <th style="width: 70px;">Existencias</th>
                     <th style="width: 70px;">Cantidad a Comprar</th>
                     <th style="width: 70px;">Total Compra</th>
@@ -530,11 +577,11 @@ function crearBodyRecompras (codigoMovimientos){
                     <td class="id_compras_modal invisible"></td>
                     <td>${document.getElementById("sucursal-compras").value}</td>
                     <td>${document.getElementById("categoria-compras").children[document.getElementById("categoria-compras").selectedIndex].textContent}</td>
-                    <td class="codigo_compras_modal insertarMovimientos">${codigoMovimientos}</td>
+                    <td class="codigo_compras_modal insertarMovimientos" style="border-radius: 5px">${codigoMovimientos}</td>
                     <td class="invisible"><input class="input-tablas fondo" disabled></td>
                     <td class="invisible"></td>
                     <td style="text-align: right"></td>
-                    <td><input class="input-tablas-dos-largo insertarNumero"></td>
+                    <td><input class="input-tablas-dos-largo insertarNumero" placeholder="Valor > 0"></td>
                     <td class="invisible"><input class="input-tablas-dos fondo insertarCosto" disabled></td>
                     <td class="invisible"></td>
                     <td class="invisible"><input class="input-tablas-dos fondo" disabled></td>
@@ -657,11 +704,19 @@ function operarCantidadARecomprar(){
 function filaBodyProformaPincipal(){
     const fila_modal = document.querySelectorAll(".codigo_compras_modal");
     fila_modal.forEach((event)=>{
-        if(Number(event.parentNode.children[9].textContent) > 0 &&
+
+        event.parentNode.children[4].children[0].style.background = ""
+        event.parentNode.children[7].children[0].style.background = ""
+        event.parentNode.children[8].children[0].style.background = ""
+        event.parentNode.children[10].children[0].style.background = ""
+
+        if(event.parentNode.children[4].children[0].value !== "" &&
         Number(event.parentNode.children[7].children[0].value) > 0 &&
-        Number(event.parentNode.children[8].children[0].value) > 0 &&
-        Number(event.parentNode.children[8].children[0].value) < 
-        Number(event.parentNode.children[10].children[0].value)){
+        event.parentNode.children[7].children[0].value !== "" &&
+        Number(event.parentNode.children[8].children[0].value) >= 0 &&
+        event.parentNode.children[8].children[0].value !== "" &&
+        Number(event.parentNode.children[10].children[0].value) >= Number(event.parentNode.children[8].children[0].value) &&
+        event.parentNode.children[10].children[0].value !== ""){
             let fila_principal = document.querySelector("#tabla_principal > tbody");
             let nueva_fila_principal = fila_principal.insertRow(-1);
             let fila = `<tr>
@@ -687,6 +742,17 @@ function filaBodyProformaPincipal(){
                         </tr>
                         `
             nueva_fila_principal.innerHTML = fila;
+        }else if(event.parentNode.children[4].children[0].value === ""){
+            event.parentNode.children[4].children[0].style.background = "#b36659"
+        }else if(Number(event.parentNode.children[7].children[0].value) <= 0 ||
+        event.parentNode.children[7].children[0].value === ""){
+            event.parentNode.children[7].children[0].style.background = "#b36659"
+        }else if(Number(event.parentNode.children[8].children[0].value) < 0 ||
+        event.parentNode.children[8].children[0].value === ""){
+            event.parentNode.children[8].children[0].style.background = "#b36659"
+        }else if(Number(event.parentNode.children[10].children[0].value) < Number(event.parentNode.children[8].children[0].value) ||
+        event.parentNode.children[10].children[0].value === ""){
+            event.parentNode.children[10].children[0].style.background = "#b36659"
         };
     });
     eliminarFilaCompras()
@@ -697,7 +763,7 @@ function mandarATablaPrincipal(e){
     e.preventDefault();
     removerProductoRepetido();
     filaBodyProformaPincipal();
-    const borrar = document.querySelectorAll(".insertarNumero");//eliminamos las filas que si pasaron a la tabla principal
+    const borrar = document.querySelectorAll(".insertarNumero");//eliminamos las filas de la tabla modal que si pasaron a la tabla principal
     borrar.forEach((e)=>{
         if(e.value > 0){
             e.parentNode.parentNode.remove()
@@ -834,6 +900,17 @@ async function cargarComprasMes(){
         }
     })
     comprasMensuales = await respuesta.json();
+};
+async function cargarComprasLala(){
+    let url = URL_API_almacen_central + 'procesar_nuevo_producto'
+    let respuesta  = await fetch(url, {
+        "method": 'GET',
+        "headers": {
+            "Content-Type": 'application/json'
+        }
+    })
+    lalin = await respuesta.json();
+    console.log(lalin)
 };
 let colorFondoBarra = ["#E6CA7B","#91E69C","#6380E6","#E66E8D"];
 let sucursalesLabel = ["Almacén Central", "Sucursal Uno", "Sucursal Dos", "Sucursal Tres"];

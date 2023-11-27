@@ -162,6 +162,7 @@ function llenarKardex(){
 
     nuevaCeldatablaKardex = nuevaFilatablaKardex.insertCell(8);
     nuevaCeldatablaKardex.style.textAlign="right"
+    nuevaCeldatablaKardex.style.background="var(--fondo-cuaternario)"
     nuevaCeldatablaKardex.textContent = (document.getElementById("total-existencias-detalle-entradas").textContent -
                                         document.getElementById("total-devoluciones-detalle-entradas").textContent) -
                                         (document.getElementById("total-existencias-detalle-salidas").textContent - 
